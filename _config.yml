@@ -1,2 +1,17 @@
+name: shhider
+url: http://shhider.github.io
+source:      .
+destination: ./_site
+lsi:      false
+safe:     false
+markdown: redcarpet
+permalink: /blog/:year/:month/:title
+paginate: 12
+paginate_path: "articles/page:num"
+encoding: utf-8
 
+post_defaults:
+  layout: post
 
+redcarpet:
+  extensions: ["tables", "autolink"]
