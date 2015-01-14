@@ -1,18 +1,31 @@
 {% include head.html %}
-
-<div class="container">
-    {% for post in site.posts %}
-        {% if forloop.index <=12 %}
-        <section>
-            <a href="{{ post.url }}/">
-                {% assign paths = post.id | split: '/' %}
-                <h2>{{ post.title | strip_html | truncate: 22 }}</h2>
-            </a>
-            <p class="date">发布于 {{ post.date | date_to_string }}</p>
-            <p>{{ post.preview }}</p>
-        </section>
-        {% endif %}
-    {% endfor %}
+<div class="m-banner"></div>
+<div class="g-bd g-wrap f-cb">
+	<div class="g-mn f-fl">
+		<ul class="m-articelList">
+			{% for post in site.posts %}
+				{% if forloop.index <=12 %}
+				<li>
+					<div class="tit">
+						<h2>
+							<a href="{{ post.url }}/">
+								{% assign paths = post.id | split: '/' %}
+								{{ post.title | strip_html | truncate: 22 }}
+							</a>
+						</h2>
+					</div>
+					<div class="summary">
+						<p>{{ post.summary }}</p>
+					</div>
+					<div class="meta">
+						<span>{{ post.date | date_to_string }}</span>
+					</div>
+				</li>
+				{% endif %}
+			{% endfor %}
+		</ul>
+	</div>
+	<!-- <div class="g-sd f-fr"></div> -->
 </div>
 
 {% include footer.html %}
