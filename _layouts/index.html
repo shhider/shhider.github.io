@@ -14,11 +14,19 @@
 							</a>
 						</h2>
 					</div>
+					{% if post.pic %}
+					<div class="pic">
+						<img src="{{ post.pic }}" alt="">
+					</div>
+					{% endif %}
 					<div class="summary">
 						<p>{{ post.summary }}</p>
 					</div>
 					<div class="meta">
 						<span>{{ post.date | date_to_string }}</span>
+						{% if post.author %}
+						<span>{{ post.author }}</span>
+						{% endif %}
 					</div>
 				</li>
 				{% endif %}
