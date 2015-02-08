@@ -10,7 +10,7 @@
 						<h2>
 							<a href="{{ post.url }}/">
 								{% assign paths = post.id | split: '/' %}
-								{{ post.title | strip_html | truncate: 22 }}
+								{{ post.title | strip_html }}
 							</a>
 						</h2>
 					</div>
