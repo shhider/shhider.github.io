@@ -1,6 +1,6 @@
 html, body {
 	font: 16px/1.5 "Microsoft Yahei", sans-serif;
-	background-color: #ebebeb;
+	background-color: #F1E9DC;
 	width: 100%; height: 100%;
 }
 
@@ -16,15 +16,29 @@ html, body {
 }
 .g-sd{
 	width: 280px;
-	height: 300px;
-	background: #fff;
 }
 
 header {
 	position: relative;
 	width: 100%; height: 60px;
-	background-color: rgba(0,0,0,.5);
+	background-color: #7B5957;
 }
+.logo{
+	margin: 0; padding: 0;
+	font-size: 20px; color: #fff; line-height: 60px;
+}
+/* 导航栏 */
+nav a{
+	display:inline-block; *display:inline; *zoom:1;
+	margin: 0; padding: 0 15px;
+	height: 60px; line-height: 60px;
+	font-size: 16px; color: #fff; text-decoration: none;
+	background: transparent;
+	-webkit-transition: background .4s;
+	-moz-transition: background .4s;
+	transition: background .4s;
+}
+nav a:hover{ background-color: #674B49;}
 
 .m-banner{
 	margin: -60px 0 0 0;
@@ -40,7 +54,7 @@ header {
 .m-articelList li{
 	display: block;
 	list-style: none;
-	margin: 30px 0;
+	margin: 0 0 30px 0;
 	background: #fff;
 	box-shadow: 0 2px 3px rgba(0,0,0,.3);
 	border-top: 1px solid #ccc;
@@ -91,6 +105,8 @@ article #comment { margin: 20px 5px; border-top: 1px solid #dadada; padding: 10p
 article blockquote { background: #f9f9f9; border-left: 10px solid #ccc; margin: 1.5em 10px; padding: 0.5em 10px; position: relative; quotes: "\201C" "\201D" "\2018" "\2019";}
 article blockquote:before { color: #ccc; content: open-quote; font-size: 2em; position: absolute;}
 article blockquote p { text-indent: 1.5em; margin: 0 !important;}
+
+.m-intro{ padding: 15px; background-color: #fff;}
 
 .getmore {
 	margin: 0 0 0 14px;

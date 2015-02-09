@@ -1,7 +1,5 @@
 {% include head.html %}
 
-<link rel="stylesheet" href="/public/css/synatx.css">
-
 <div class="g-bd g-wrap f-cb">
 	<div class="g-mn f-fl">
 		<article>
@@ -14,6 +12,19 @@
       </div>
 		</article>
 	</div>
+  {% include side.html %}
 </div>
+
+<script>
+(function(){
+  /* 加载代码高亮样式 */
+  var _node = document.createElement('link');
+  _node.rel = 'stylesheet';
+  _node.type= 'text/css';
+  _node.href= '/public/css/synatx.css';
+  var _head = document.getElementsByTagName('head')[0];
+  _head.appendChild(_node);
+})();
+</script>
 
 {% include footer.html %}
