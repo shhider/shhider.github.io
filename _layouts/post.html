@@ -3,10 +3,8 @@
 <div class="g-bd g-wrap f-cb">
 	<div class="g-mn f-fl">
 		<article>
-			<div class="article-info">
-        <h1 class="title">{{ page.title }}</h1>
-        <div class="author">{{ page.date | date_to_string }}</div>
-      </div>
+      <h1>{{ page.title }}</h1>
+      <p class="info">{{ page.date | date_to_string }}</p>
       <div class="content">
       {{ content }}
       </div>
@@ -24,6 +22,7 @@
   _node.href= '/public/css/synatx.css';
   var _head = document.getElementsByTagName('head')[0];
   _head.appendChild(_node);
+
 })();
 </script>
 

@@ -73,11 +73,11 @@ author: rank
 经过测试，有几个方法是可以化解 JS NFA 引擎的回朔次数：
 
 * 去掉限定的量词，即改成
-	{% highlight js %}
-	 String.prototype.trim = function () {
-	    return this.replace(/^[\s\t ]+|[\s\t ]$/g, '');
-	 }
-	{% endhighlight %}
+{% highlight js %}
+String.prototype.trim = function () {
+    return this.replace(/^[\s\t ]+|[\s\t ]$/g, '');
+}
+{% endhighlight %}
 	
 * 去掉字符串尾匹配。
 {% highlight js %}
