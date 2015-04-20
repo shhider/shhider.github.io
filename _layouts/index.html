@@ -1,11 +1,21 @@
 {% include head.html %}
-<!-- <div class="m-banner"></div> -->
+
+<div class="g-hd m-hd">
+  <div class="logo">
+    <h1>Shhider's</h1>
+  </div>
+  <ul class="m-nav">
+    <li><a class="crt" href="/">程序猿</a></li>
+    <li><a href="/life.html">瞎扯扯</a></li>
+  </ul>
+</div>
+
 <div class="g-bd f-cb">
 	<div class="g-mn">
 		<div class="m-bloglist">
 			<div class="m-mdtit">最新文章</div>
 			{% for post in site.posts %}
-				{% if forloop.index <=12 %}
+				{% if post.category != 'life' %}
 				<section>
 					<h2>
 						<a href="{{ post.url }}/">

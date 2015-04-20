@@ -1,5 +1,20 @@
 {% include head.html %}
 
+<div class="g-hd m-hd">
+  <div class="logo">
+    <h1>Shhider's</h1>
+  </div>
+  <ul class="m-nav">
+    {% if page.category == 'life' %}
+      <li><a href="/">程序猿</a></li>
+      <li><a class="crt" href="/life.html">瞎扯扯</a></li>
+    {% else %}
+      <li><a class="crt" href="/">程序猿</a></li>
+      <li><a href="/life.html">瞎扯扯</a></li>
+    {% endif %}
+  </ul>
+</div>
+
 <div class="g-bd g-wrap f-cb">
 	<div class="g-mn">
 		<article>
