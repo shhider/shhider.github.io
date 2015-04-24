@@ -1,6 +1,7 @@
 ---
 layout: post
 title: 知乎关注问题小结
+category: life
 summary: 在知乎上关注的问题的一次小结
 ---
 

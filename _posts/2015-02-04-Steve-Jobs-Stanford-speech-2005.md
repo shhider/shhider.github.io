@@ -1,6 +1,7 @@
 ---
 layout: post
 title: Steve Job在斯坦福毕业典礼上的演讲（2005）
+category: life
 pic: /public/img/steve-jobs-stanford-2005.jpg
 summary: Text of Steve Jobs' Commencement address (2005)
 ---

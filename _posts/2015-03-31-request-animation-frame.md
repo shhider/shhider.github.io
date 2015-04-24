@@ -1,6 +1,8 @@
 ---
 layout: post
 title: 优化动画性能——requestAnimationFrame方法
+category: code
+summary: 最近要做点H5游戏相关的东西，然后就看到requestAnimationFrame……
 ---
 
 偷懒了几天，还是得继续写代码。今天开始着手学习HTML5中的动画。
