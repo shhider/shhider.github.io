@@ -107,3 +107,19 @@ _pro.__doBuild = function(){
 ## 模版系统
 
 ## 模块测试
+
+
+## 其他
+
+1、像模块、控件等模块化开发中一个概念就是“生命周期”，如``__init``到``__show``再到``__onRefrsh``等等这样的过程。引入生命周期除了带来很好的扩展性外，更重要的是理顺了组件的各个阶段，有助于更好的理解和运用。
+
+2、在查看控件的回收（\_\_recyle）实现时，发现一些操作其实是绑定在构造函数上，然后通过原型进行调用。所以之后在查看某方法的实现时，尽量避免迷惑；
+
+在继续对recycle方法追究的过程中。还学习到几点：
+
+- 首先是了解到原型链上，同名方法的执行过程；
+- UI控件在\_\_recyle方法调用后，节点也会从页面中去除。我一开始想，肯定是有个过程中执行了removeChild方法，而在追寻调用链的过程中，却没有看到这个方法。经过定位，最后发现节点是在原生方法appendChild执行后被去除的（base/element#_$removeByEC）。查看文档——[Node.appendChild() - Web API Interfaces | MDN](https://developer.mozilla.org/en-US/docs/Web/API/Node/appendChild)，可以看到这样一段话：
+
+> The Node.appendChild() method adds a node to the end of the list of children of a specified parent node. **If the given child is a reference to an existing node in the document, appendChild() moves it from its current position to the new position** (i.e. there is no requirement to remove the node from its parent node before appending it to some other node).
+
+这其实是一个很常用的方法，但是平时我却没有注意到这一点。
