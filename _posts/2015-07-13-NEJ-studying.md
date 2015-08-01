@@ -98,11 +98,41 @@ _pro.__doBuild = function(){
 
 这里主要记录一下这几个接口的执行顺序。当模块载入时，首先执行``__doBuild``；在显示时（前、后取决于``__super``方法在何时执行）执行``__onShow``方法，过程中会调用``__onRefresh``方法；当页面转向其他模块时，会最后执行``__onHide``方法，尽可能使状态回复到``__doBuild``之后的状态；当再次显示时，再执行``__onShow``和``__onRefresh``方法。
 
-### 疑问：如何在URL中携带数据？
+### 关于模块调度系统的其他
+
+1、实例化模块调度器后，NEJ会将该调度器添加到页面全局。后续可以直接调用。
+
+```javascript
+// util/dispatcher/dispatcher, line: 1231
+window.dispatcher =
+    _p._$$Dispatcher.
+    _$getInstance(_options);
+```
+
+### 在URL中携带查询数据
 
 背景：手头项目中，需要实现一个产品详情页，希望模块路径是``index.html#/m/product/productName``，或者类似的、可以把产品名保存在URL中的形式，利于用户通过地址直接打开指定产品的详情页。
 
-而就我目前了解的NEJ的模块调度，hash部分都将被解析为模块路径。因此这个问题希望求解。
+~~ 更新 ~~
+
+之前在文档和代码中没有看到有关查询数据（?aa=11&bb=22）的说明，所以以为NEJ并没有实现查询数据相关。所以当时原本打算自己从location中提取query数据。
+
+然而，在尝试的过程中，我发现hash部分和query部分的顺序前后会出现不同的问题。
+
+如``index.html#/m/app/?aa=11``和``index.html?aa=11#/m/app/``，两者查看location时：
+
+```javascript
+// 前者
+location.hash = '#/m/app/?aa=11'
+location.search = ''
+// 后者
+location.hash = '#/m/app/'
+location.search = '?aa=11'
+```
+
+前者没发现什么副作用，只是不知道怎么取到query值；后者则在模块跳转后，query仍在url中。
+
+今天又碰到了这个障碍，所以又看了看相关代码，终于发现，其实NEJ已经帮我们做了这块工作，刚才的前后两种情况都会把查询数据解析出来，只是最后没有保存到location对象中。不过在onbeforechange事件传入的参数中，还带着query数据，只要保存到location对象中，后续就可以取用了。
 
 ## 模版系统
 
@@ -113,13 +143,17 @@ _pro.__doBuild = function(){
 
 1、像模块、控件等模块化开发中一个概念就是“生命周期”，如``__init``到``__show``再到``__onRefrsh``等等这样的过程。引入生命周期除了带来很好的扩展性外，更重要的是理顺了组件的各个阶段，有助于更好的理解和运用。
 
+控件的生命周期：\_\_init（调用了\_\_initXGui和\_\_initNode）（第一次实例化时执行） > \_\_reset（每次使用都执行） >  \_\_destroy（每次移除时执行）
+
 2、在查看控件的回收（\_\_recyle）实现时，发现一些操作其实是绑定在构造函数上，然后通过原型进行调用。所以之后在查看某方法的实现时，尽量避免迷惑；
 
 在继续对recycle方法追究的过程中。还学习到几点：
 
-- 首先是了解到原型链上，同名方法的执行过程；
+- 在定义一个子类型时，某方法是其原型链中已经存在的方法，那么重写该方法就会屏蔽原来的那个方法。NEJ则添加了\_\_super方法，去调用执行上一个同名方法；
 - UI控件在\_\_recyle方法调用后，节点也会从页面中去除。我一开始想，肯定是有个过程中执行了removeChild方法，而在追寻调用链的过程中，却没有看到这个方法。经过定位，最后发现节点是在原生方法appendChild执行后被去除的（base/element#_$removeByEC）。查看文档——[Node.appendChild() - Web API Interfaces | MDN](https://developer.mozilla.org/en-US/docs/Web/API/Node/appendChild)，可以看到这样一段话：
 
 > The Node.appendChild() method adds a node to the end of the list of children of a specified parent node. **If the given child is a reference to an existing node in the document, appendChild() moves it from its current position to the new position** (i.e. there is no requirement to remove the node from its parent node before appending it to some other node).
 
 这其实是一个很常用的方法，但是平时我却没有注意到这一点。
+
+- NEJ的\_\_super方法实现中，使用了arguments.callee.caller，而该属性在ES6中已经被移除，所以NEJ一定程度上不兼容ES6；
