@@ -27,3 +27,23 @@ div:after{
     height:0;
 }
 ```
+
+HtmlFormElement对象中的表单项是只读的！[http://www.w3.org/TR/DOM-Level-2-HTML/html.html#ID-40002357](http://www.w3.org/TR/DOM-Level-2-HTML/html.html#ID-40002357)
+
+键盘事件，按下Enter键有以下几种情况：单独按下 | Ctrl+Enter | Shif+Enter。除IE8及以下未测试外，Firefox是：13 | 13 |13，其他（Chrome、IE9+）均为：13 | 10 | 13。
+
+在项目中，有大量的Ajax操作，后来发现一些页面请求接口后，数据并不是最新的。原因是浏览器的缓存机制，特别是IE中，以及Firefox。解决方案是，在需要获取最新数据的URL中加上一个随机字符串，我使用的是时间戳+随机数。
+
+ES5中String对象已经支持trim方法，即去除字符串首尾的空白字符。IE8及以下不支持，实现的代码可以看以下。NEJ中已经对String添加该方法。
+
+```javascript
+function trim(str){ //删除左右两端的空格
+    return str.replace(/(^\s*)|(\s*$)/g, "");
+}
+function ltrim(str){ //删除左边的空格
+    return str.replace(/(^\s*)/g,"");
+}
+function rtrim(str){ //删除右边的空格
+    return str.replace(/(\s*$)/g,"");
+}
+```
