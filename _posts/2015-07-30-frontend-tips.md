@@ -47,3 +47,12 @@ function rtrim(str){ //删除右边的空格
     return str.replace(/(\s*$)/g,"");
 }
 ```
+
+在很多情况下，我们经常通过多个网址提供相同的内容。通过多个网址访问的内容（或等同内容）定义一个规范网址，我们可以避免一些seo上的问题。
+
+```html
+<link rel="canonical" href="https://example.com/more/better/url" />
+```
+
+- Google文档：[https://support.google.com/webmasters/answer/139066?hl=zh-Hans](https://support.google.com/webmasters/answer/139066?hl=zh-Hans)；
+- 也可以参考我网易考拉的做法：[www.kaola.com](www.kaola.com)，整体页面超级规范的。
