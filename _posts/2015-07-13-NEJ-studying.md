@@ -4,6 +4,96 @@ title: NEJ学习、实践笔记
 category: code
 ---
 
+= = = = = = = = Update(2015-08-15) = = = = = = = =
+
+## ajax提交
+
+我们在用NEJ进行ajax提交时，一般会用``util/ajax/rest``和``util/ajax/xdr``来实现。
+
+当使用前者``util/ajax/rest``时，所发出的请求的``Content-Type``字段值为``application-json``，数据部分格式也直接是json字符串格式。一切感觉很和谐，唯独遗憾的是，现在一些后台对``application-json``形式的请求支持度不高，需要开发者一番特殊处理才能拿到数据。
+
+而后者``util/ajax/xdr``主要是基本的一些请求方式，各种后台的支持情况应该是都很好。但是在使用中却发现，进行POST请求时，后台还是无法拿到数据。这是怎么回事呢？
+
+这一节就是要来解决这个问题。打开F12来查看一下请求，我们看到：``Content-Type``是正常的``application/x-www-form-urlencoded``，但请求的数据却是``[object object]``。一般，我们是这样调用``_$request``的：
+
+```javascript
+_j._$request('/api/test', {
+  method: 'POST',
+  type: 'JSON',
+  data: {
+    username: name,
+    password: pwd
+  },
+  onload: function(res){}
+  /* more */
+});
+```
+
+请求数据保存在data属性中，一般就是简单对象类型。所以一定在哪里被toString了。
+
+经过控制台的一路跟踪，一直到发出请求的最后一步，data属性都没有被处理过。来看看最后一步是这样的：
+
+```javascript
+/* util/ajax/proxy/xhr.js, line: 130 */
+this.__xhr.send(_request.data);
+```
+
+那么问题应该就出在这，对于xhr的send方法，查阅资料得到：
+
+```javascript
+void send([data = null]);
+/**
+ * data参数可选，支持以下类型：
+ * - ArrayBuffer
+ * - Blob
+ * - Document
+ * - DomString(string)*
+ * - FormData
+ * 
+ * 对以上这些类型的解释，可以移步张鑫旭的博客：
+ * http://www.zhangxinxu.com/wordpress/2013/10/understand-domstring-document-formdata-blob-file-arraybuffer/
+ */
+```
+
+可以看到，简单对象类型在send方法并不被接受。简单对象类型data在这里被强制toString，变成了[object object]。
+
+所以我们在这之前要对data进行转换成上面的其中一种类型。
+
+一般来说，ajax请求的``Content-Type``都是``application/x-www-form-urlencoded``（还有比较新的``application/json``）。大部分后台程序面对``application/x-www-form-urlencoded``请求，会把请求数据部分按照``aa=xx&&bb=yy&&cc=zz``这样的格式来解析。
+
+所以了，我们就直接把data转换成上面说的需要的格式。先来测试一下，把send的参数转换成字符串：
+
+```javascript
+this.__xdr.send(_u._$object2string(_request.data, '&'));
+```
+
+经过测试，果然发出了正确的请求，并获得正确的响应。
+
+不过，直接在这一句转换类型是不合理的，因为有时候可能会有其他Content-Type的请求，最后都会走这一句。所以针对我们针对``application/x-www-form-urlencoded``来进行单独处理。本来我是想模仿NEJ处理ajx上传文件时的做法，使用FormData对象来转换成可用的类型：
+
+```javascript
+/* util/ajax/proxy/xhr.js, line: 92 */
+if (_headers[_g._$HEAD_CT]===_g._$HEAD_CT_FILE){
+    // ...
+    _request.data = new FormData(_request.data);
+    // ...
+}
+```
+
+但是根据资料：[FormData - Web API 接口| MDN](https://developer.mozilla.org/zh-CN/docs/Web/API/FormData)，IE9及以下版本IE不支持FormData对象。并且，我查找了NEJ代码，没有相关的兼容性处理，所以我在这里还是选择以字符串形式处理，以保证基本的兼容性，如下：
+
+在send之前检查Content-Type类型，如果是``application/x-www-form-urlencoded``，那么就把参数转换成所需格式的字符串(string)。
+
+```javascript
+if(_headers[_g._$HEAD_CT]===_g._$HEAD_CT_FORM){
+    _request.data = _u._$object2string(_request.data, '&');
+}
+```
+
+另外有一点就是，相关方法在处理请求参数时，如果没有设置Content-Type，就会默认设置为``application/x-www-form-urlencoded``（util/ajax/proxy/proxy.js, line: 88）。当使用``util/ajax/rest``时，NEJ会自动设置Content-Type为``application/json``；而如果在设置请求参数时设置Content-Type为``application/x-www-form-urlencoded``，那么当前处理方法也并不能正确地发出请求。所以默认情况下，笔者所做的改动并不会影响到rest请求。
+
+= = = = = = = = Update(2015-07-22) = = = = = = = =
+
 NEJ，Nice Easy JavaScript，出自网易前端大神——genify之手，是网易产品线中使用最广泛的前端框架。
 
 - NEJ官网：[http://nej.netease.com/](http://nej.netease.com/)
