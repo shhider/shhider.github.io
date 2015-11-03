@@ -4,9 +4,22 @@ title: NEJ学习、实践笔记
 category: code
 ---
 
-= = = = = = = = Update(2015-08-15) = = = = = = = =
+## NEJ的平台适配（2015-11-03）
 
-## ajax提交
+（标题有点大，其实就是记录一下NEJ已经帮忙做的事，提醒自己在使用时多注意）
+
+NEJ的平台适配非常完善，让开发者几乎察觉不到它的存在。以innerText为例，该属性是IE的自有属性，chrome等也做了支持，但Firefox并没有实现，所以在一般情况下并不能随意使用。NEJ的平台适配中：
+
+```javascript
+if (!('innerText' in document.body)){
+    HTMLElement.prototype['__defineGetter__']("innerText",function(){return this.textContent;});
+    HTMLElement.prototype['__defineSetter__']("innerText",function(_content){this.textContent = _content;});
+}
+```
+
+对于不支持innerText的浏览器，使用textContent属性（W3C标准属性）去实现。
+
+## ajax提交(2015-08-15)
 
 我们在用NEJ进行ajax提交时，一般会用``util/ajax/rest``和``util/ajax/xdr``来实现。
 
