@@ -1,0 +1,73 @@
+@abstract '_prefix.mcss';
+/**
+ * 	配置信息，在mcss文件顶部用@abstract调用，但不会被解析成css
+ */
+
+/* 字体 */
+$ff0 = arial,'simsun';
+/* 文字大小 */
+$fs0 = 12px;
+/* 文字色 */
+$fc0 = #333;
+/*  */
+$listwrap = {position: absolute;top:146px;bottom:0;_height:487px;overflow:hidden;}
+$full = {position:absolute;top:0;left:0;width:100%;height:100%;}
+/* timing function */
+$endslowly = cubic-bezier(0, 0.5, 0, 1);/* 结束慢 */
+$beginslowly = cubic-bezier(1, 0, 0.5, 0);/* 开始慢 */
+/* functions */
+$clearfix = {
+	zoom:1;
+	&:after{display:block;clear:both;visibility:hidden;height:0;overflow:hidden;content:".";}
+}
+$inline-block = {display:inline-block;*display:inline;*zoom:1;}
+$simsun = {font-family:$ff0;}
+$justify = {text-align:justify;text-justify:inter-ideograph;}
+$nowrap = {word-wrap:normal;white-space:nowrap;}
+$pre = {overflow:hidden;text-align:left;white-space:pre-wrap;word-wrap:break-word;word-break:break-all;}
+$break-word = {white-space:normal;word-wrap:break-word;word-break:break-all;}
+$ellipsis = {overflow:hidden;word-wrap:normal;white-space:nowrap;text-overflow:ellipsis;}
+$noselect = {$user-select:none;}
+$opacity = ($oc=0){opacity:$oc;filter:alpha(opacity=round($oc * 100));}
+$hideText = {overflow:hidden;text-indent:-20000px;}
+$scrollY = {overflow:hidden;overflow-y:auto;}
+$zoomin = {cursor:-webkit-zoom-in;cursor:-moz-zoom-in;cursor:pointer\9;}
+$shadow = {$box-shadow:0 1px 5px rgba(0,0,0,0.2);}
+$textshadow = {text-shadow:0 1px rgba(255,255,255,0.8);}
+$placeholder = {
+  .z-placeholder-parent{position:relative;display:block;}
+  .z-placeholder{height:16px;padding:6px;font:$fs0/16px $ff0;color:$fc11;}
+}
+$background-radial = ($from,$to){
+    background-image:-webkit-radial-gradient($from,$to);
+    background-image:-moz-radial-gradient($from,$to);
+    background-image:-ms-radial-gradient($from,$to);
+    background-image:-o-radial-gradient($from,$to);
+    background-image:radial-gradient($from,$to);
+}
+$background-linear = ($from,$to){
+    background-image:-webkit-linear-gradient($from,$to);
+    background-image:-moz-linear-gradient($from,$to);
+    background-image:-ms-linear-gradient($from,$to);
+    background-image:-o-linear-gradient($from,$to);
+    background-image:linear-gradient($from,$to);
+}
+$keyframes = ($name, $block){
+  @-webkit-keyframes $name{
+    $block(-webkit-);
+  }
+  @-moz-keyframes $name{
+    $block(-moz-);
+  }
+  @-ms-keyframes $name{
+    $block(-ms-);
+  }
+  @-o-keyframes $name{
+    $block(-o-);
+  }
+  @keyframes $name{
+    $block('');
+  }
+}
+/* for embed */
+$embeddoc = {position:absolute;top:44px;left:5px;border:1px solid #8e9da9;border-radius:5px;$box-shadow:0 0 6px rgba(0,0,0,0.2);}

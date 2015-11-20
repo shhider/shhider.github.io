@@ -1,38 +1,22 @@
-/* === CSS Reset === */
-/* 去除间距 */
-html,body,h1,h2,h3,h4,h5,h6,
-div,dl,dt,dd,p,blockquote,pre,hr,figure,
-table,caption,th,td,
-form,fieldset,legend,input,button,textarea,
-menu{ margin:0; padding:0;}
-/* for HTML5 Tags */
-header,footer,section,article,aside,nav,hgroup,
-address,figure,figcaption,menu,details{ display:block;}
-/* Table*/
-table{ border-collapse:collapse; border-spacing:0;}
-html,body,fieldset,img,iframe,abbr{ border:0;}
-i,cite,em,var,address,dfn{ font-style:normal;}
-/* IE中链接会出现虚线框 */
-[hidefocus],summary{ outline:0;}
-sup,sub{ font-size:83%;}
-pre,code,kbd,samp{ font-family:inherit;}
-q:before,q:after{ content:none;}
-textarea{ overflow:auto; resize:none;}
-label,summary{ cursor:default;}
-a,button{ cursor:pointer;}
-body{ background:#fff;}
-a,a:hover{ text-decoration:none; color:#333;}
-/* 统一字体 */
-body,textarea,input,button,select,keygen,legend{
-  font:14px/1.5 "Microsoft Yahei", arial, \5b8b\4f53;
-  color:#333; outline:0;
-}
-
-/* === Function === */
-.f-cb:after,.f-cbli li:after{display:block; clear:both; visibility:hidden; height:0; overflow:hidden; content:".";}
-.f-cb,.f-cbli li{ zoom:1;}
-.f-ib{ display:inline-block; *display:inline; *zoom:1;}
-.f-dn{ display:none;}
-.f-db{ display:block;}
-.f-fl{ float:left;}
-.f-fr{ float:right;}
+html,body,h1,h2,h3,h4,h5,h6,div,dl,dt,dd,p,blockquote,pre,hr,figure,table,caption,th,td,form,fieldset,legend,input,button,textarea,menu{margin:0;padding:0;}
+header,footer,section,article,aside,nav,hgroup,address,figure,figcaption,menu,details{display:block;}
+table{border-collapse:collapse;border-spacing:0;}
+html,body,fieldset,img,iframe,abbr{border:0;}
+i,cite,em,var,address,dfn{font-style:normal;}
+[hidefocus],summary{outline:0;}
+sup,sub{font-size:83%;}
+pre,code,kbd,samp{font-family:inherit;}
+q:before,q:after{content:none;}
+textarea{overflow:auto;resize:none;}
+label,summary{cursor:default;}
+a,button{cursor:pointer;}
+body{background:#fff;}
+a,a:hover{text-decoration:none;color:#333;}
+body,textarea,input,button,select,keygen,legend{font:14px/1.5 "Microsoft Yahei",arial,\5b8b\4f53;color:#333;outline:0;}
+.f-cb:after,.f-cbli li:after{display:block;clear:both;visibility:hidden;height:0;overflow:hidden;content:".";}
+.f-cb,.f-cbli li{zoom:1;}
+.f-ib{display:inline-block;*display:inline;*zoom:1;}
+.f-dn{display:none;}
+.f-db{display:block;}
+.f-fl{float:left;}
+.f-fr{float:right;}
