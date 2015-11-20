@@ -6,7 +6,15 @@ category: code
 
 原文链接：[https://css-tricks.com/absolute-relative-fixed-positioining-how-do-they-differ/](https://css-tricks.com/absolute-relative-fixed-positioining-how-do-they-differ/)
 
+Finsta同学在论坛上提出了一个问题：
 
+> 我刚刚开始接触Web设计，一直不能掌握元素几种定位之间的差异。我现在知道有absolute, fixed, relative这几种。请问还有其他值吗？它们直接主要的差异是什么？分别在什么情况下使用？
+
+**简短的回答：** 是的，还有一种定位方式`static`，是元素的默认值。并且定位方式之间的确存在明显的差异。每一种都非常有用，而你应该使用哪一种当然取决于你需要达到怎样的效果。另外，不要忘了`float`浮动定位，这也是元素定位的重要的一部分。
+
+**适中的回答：** 我没有写“长篇大论”是因为没有必要对以往写过多次的内容再重写一遍，不过我还是会用这“适中的回答”来快速地过一遍每种定位类型。我有时也更希望大家去看[这篇文章](http://www.barelyfitz.com/screencast/html-training/css/positioning/)，非常到位的解释了这个问题。
+
+首先要理解一个重要的概念，页面上每个单独的元素都是“块(block)”。
 
 --- 
 
@@ -20,7 +28,7 @@ Finsta left a question in the forums:
 
 **Medium answer:** I'm not going to do a "long answer" because there is no need to rewrite what has been written many times before, but I will do a "medium answer" here were we can quickly run through each type. I also sometime refer people to this [10 step tutorial](http://www.barelyfitz.com/screencast/html-training/css/positioning/), which does a pretty good job of explaining it.
 
-An important concept to understand first is that every single element on a web page is a block. Literally a rectangle of pixels. This is easy to understand when when you set the element to display: block; or if that element is by default display: block; This means you can set a width and a height and that element will respect that. But elements that are display: inline, like a span by default, are also rectangles, they just flow onto the page different, lining up horizontally as they can.
+An important concept to understand first is that every single element on a web page is a block. Literally a rectangle of pixels. This is easy to understand when when you set the element to `display: block;` or if that element is by default display: block; This means you can set a width and a height and that element will respect that. But elements that are display: inline, like a span by default, are also rectangles, they just flow onto the page different, lining up horizontally as they can.
 
 Now that you are picturing every single page element as a block of pixels, we can talk about how positioning is used to get the blocks of pixels exactly where you want them to go. We're going to leave off any discussion of the box model, but that factors into this as well...
 
@@ -32,5 +40,5 @@ Now that you are picturing every single page element as a block of pixels, we ca
 - **Absolute.** This is a very powerful type of positioning that allows you to literally place any page element exactly where you want it. You use the positioning attributes top, left bottom and right to set the location. Remember that these values will be relative to the next parent element with relative (or absolute) positioning. If there is no such parent, it will default all the way back up to the <html> element itself meaning it will be placed relatively to the page itself.
 
     The trade-off, and most important thing to remember, about absolute positioning is that these elements are removed from the flow of elements on the page. An element with this type of positioning is not affected by other elements and it doesn't affect other elements. This is a serious thing to consider every time you use absolute positioning. It's overuse or improper use can limit the flexibility of your site.
-    
+
 - **Fixed.** This type of positioning is fairly rare but certainly has its uses. A fixed position element is positioned relative to the viewport, or the browser window itself. The viewport doesn't change when the window is scrolled, so a fixed positioned element will stay right where it is when the page is scrolled, creating an effect a bit like the old school "frames" days. Take a look at [this site](http://www.bluelounge.com/index.php) (update: dead link, sorry), where the left sidebar is fixed. This site is a perfect example for since it exhibits both good and bad traits of fixed positioning. The good is that it keeps the navigation present at all times on the page and it creates and interested effect on the page. The bad is that there are some usability concerns. On my smallish laptop, the content in the sidebar is cut off and there is no way from me to scroll down to see the rest of that content. Also if I scroll all the way down to the footer, it overlaps the footer content not allowing me to see all of that. Cool effect, can be useful, but needs to be thoroughly tested.
