@@ -106,3 +106,53 @@ Reference:
 
 - 属于HTML5特性，IE9及以上和其他现代浏览器支持良好；
 - select、checkbox、radio、file等控件慎用，各浏览器支持程度不一。
+
+---
+
+对勾√的HTML实体字符：&radic;
+
+---
+
+**innerHTML**
+
+From [MSDN](https://msdn.microsoft.com/en-us/library/ms533897\(v=vs.85\).aspx)：
+
+> The innerHTML property is read-only on the **col**, **colGroup**, **frameSet**, **html**, **head**, **style**, **table**, **tBody**, **tFoot**, **tHead**, **title**, and **tr** objects.
+> To change the contents of the **table**, **tFoot**, **tHead**, and **tr** elements, use the table object model described in [Building Tables Dynamically](https://msdn.microsoft.com/en-us/library/ms532998\(v=vs.85\).aspx). However, to change the content of a particular cell, you can use innerHTML.
+
+不过从测试（测试页面：[w3school.com.cn](http://www.w3school.com.cn/tiy/loadtext.asp?f=hdom_tablerow_innerhtml)）的情况来看，**tr**还是具有innerHTML属性的，至少目前可读。
+
+[2015-11-27]经过一系列的测试（测试浏览器：Chrome46、Firefox42、Edge、IE8-11），table、thead、tbody、tr、td都存在innerHTML属性，在IE8-9中，前四者只读，其他情况都是可读写。
+
+Reference:
+
+- [BX9046: 各浏览器对 HTML 对象的 innerHTML 属性的读写支持存在差异](http://w3help.org/zh-cn/causes/BX9046)
+- [HTML DOM innerHTML 属性](http://www.w3school.com.cn/jsref/prop_tablerow_innerhtml.asp)
+
+
+---
+
+HTML原生就带着一个`checkValidity`方法，以检验填写项是否正确，可用性待测试。
+
+---
+
+HTML的内容模型
+
+在HTML5前，元素的类型分为：Block Level Elements和Text Level Elements，中文通常称为块级元素和行内元素。
+
+> Most elements that can appear in the document body fall into one of two groups: block level elements which cause paragraph breaks, and text level elements which don't. Common block level elements include H1 to H6 (headers), P (paragraphs) LI (list items), and HR (horizontal rules). Common text level elements include EM, I, B and FONT (character emphasis), A (hypertext links), IMG and APPLET (embedded objects) and BR (line breaks). Note that **block elements generally act as containers for text level and other block level elements (excluding headings and address elements)**, while **text level elements can only contain other text level elements**. The exact model depends on the element.
+> —— form [http://www.w3.org/TR/REC-html32#level](http://www.w3.org/TR/REC-html32#level)
+
+而到了HTML5中，元素的内容模型得到了更细致的分类，共有以下7种：
+
+- Metadata content
+- Flow content
+- Sectioning content
+- Heading content
+- Phrasing content
+- Embedded content
+- Interactive content
+
+更详细的说明请前往：[W3C](http://www.w3.org/TR/2011/WD-html5-20110525/content-models.html#kinds-of-content)。同样，也可以阅读[WHATWG](https://developers.whatwg.org/content-models.html#content-models)
+
+
