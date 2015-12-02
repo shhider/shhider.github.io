@@ -4,6 +4,53 @@ title: NEJ学习、实践笔记
 category: code
 ---
 
+## NEJ的列表缓存（2015-12-2）
+
+### 先了解几个方法和事件
+
+#### _$getList
+
+该方法实现于 `util/cache/list`
+
+首先`_$getListInCache`，检查是否已缓存：
+
+- 已缓存，结束；
+- 未缓存，触发`doloadlist`事件，传入的参数有回调函数`__getList`；
+
+#### __getList
+
+该方法实现于 `util/cache/list`
+
+第二个参数，要不直接是列表，要不就是：
+
+- {total:12,result:[]}
+- {total:13,list:[]}
+
+有`total`，直接会设置总量。
+
+写入缓存
+
+触发`onloadlist`事件，传入的跟上面是同一个`_option`变量
+
+#### doloadlist
+
+该事件的回调函数`__doLoadList`，在 `util/cache/abstract` 中实现了虚拟方法
+
+#### onloadlist
+
+该事件要在缓存类实例化时传入回调函数。
+
+### 接下来怎么从缓存中取数据呢？
+
+假设实例化后为`__cache`
+
+`__cache`实例化后调用`_$getList`方法，就会去加载列表。
+
+如果缓存中没有，那么会发请求，请求响应后触发`onloadlist`事件；若已经在缓存中存在，直接触发`onloadlist`事件。
+
+因此，`onloadlist`的回调函数，需要在实例化缓存列表时就指定。
+
+
 ## NEJ的平台适配（2015-11-03）
 
 （标题有点大，其实就是记录一下NEJ已经帮忙做的事，提醒自己在使用时多注意）
