@@ -155,4 +155,42 @@ HTML的内容模型
 
 更详细的说明请前往：[W3C](http://www.w3.org/TR/2011/WD-html5-20110525/content-models.html#kinds-of-content)。同样，也可以阅读[WHATWG](https://developers.whatwg.org/content-models.html#content-models)
 
+---
 
+阅读文章：
+
+- [http://www.cnblogs.com/damonlan/archive/2012/07/01/2553425.html](http://www.cnblogs.com/damonlan/archive/2012/07/01/2553425.html)
+- [http://lixiaoshenxian.com/javascript/JavaScript%20变量声明.html](http://lixiaoshenxian.com/javascript/JavaScript%20%E5%A3%B0%E6%98%8E%E6%8F%90%E5%8D%87.html)
+
+关键词：
+
+- 变量提升（Hoisting）；
+- 作用域（Scoping）：
+    + 函数作用域；
+    + 块级作用域；
+- 函数提升：
+    + 函数声明(Function declarations)。整个函数会放到最前面进行初始化；
+    + 函数表达式(Function expressions)。仅提升变量；
+
+关于作用域，对比下面两端代码，并查看打印的内容：
+
+```javascript
+var x = 1;
+console.log(x);
+if (true) {
+  var x = 2;
+  console.log(x);
+}
+console.log(x);
+```
+
+```javascript
+'use strict';
+var x = 1;
+console.log(x);
+if (true) {
+  let x = 2;        // 注意let关键字
+  console.log(x);
+}
+console.log(x);
+```
