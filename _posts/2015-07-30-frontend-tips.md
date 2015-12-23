@@ -194,3 +194,15 @@ if (true) {
 }
 console.log(x);
 ```
+
+---
+
+call & apply
+
+- 在 **ES5的严格模式** 中，两者的第一个参数都会变成this的值，哪怕传入的参数是原始值甚至是``null``或``undefined``；
+- 在ES3和非严格模式中，传入的``null``和``undefined``会被全局对象代替；
+- call方法接受多个参数；apply接受两个参数。牢记；
+
+--- 
+
+![20151223思维导图](/public/img/20150730-1-01.png)
