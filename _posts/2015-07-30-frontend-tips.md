@@ -206,3 +206,33 @@ call & apply
 --- 
 
 ![20151223思维导图](/public/img/20150730-1-01.png)
+
+---
+
+URL Hash在3xx跳转时何去何从~
+
+首先，**HTTP请求不会包含URL的Hash部分**。
+
+当你请求``http://www.example.com/#/m/xxx/``时，HTTP的请求是这样的：
+
+```
+GET / HTTP/1.1
+Host: www.example.com
+...
+```
+
+Hash部分并不会包含在请求中。因此，后端程序也是无法取得设置的hash的。
+
+现在，有这么一个情况：``http://www.example.com/detail/#id=123``需要登录后访问；未登录时，会302跳转到登录页``http://www.example.com/login/``。
+
+那么，302跳转之后，hash部分还保留着吗？
+
+根据资料(look at Reference)和自己本机的测试(Chrome/FireFox/Edge/IE8+)，hash部分是能够保留的。但是safari浏览器不能保留。
+
+目前，也没有找到官方性质的文档，说明3xx跳转时是否应该保留hash。
+
+### Reference
+
+- [Hash URIs | W3C Blog](https://www.w3.org/blog/2011/05/hash-uris/)
+- [URL Fragments and Redirects - IEInternals - Site Home - MSDN Blogs](http://blogs.msdn.com/b/ieinternals/archive/2011/05/17/url-fragments-and-redirects-anchor-hash-missing.aspx)
+- [Bug 24175 – URL Redirect Loses Fragment](https://bugs.webkit.org/show_bug.cgi?id=24175)
