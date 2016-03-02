@@ -20,6 +20,7 @@ category: life
 
 - 【前端框架】NEJ
 - 【前端框架】RegularJS
+- 【前端框架】VueJS
 - 【阅读】《JavaScript语言精粹》
 - 【前端-JS】[深入浅出ES6](http://www.infoq.com/cn/es6-in-depth/)
 
