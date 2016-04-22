@@ -250,3 +250,8 @@ Hash部分并不会包含在请求中。因此，后端程序也是无法取得�
 ### Reference
 
 - [Stacking without z-index - Web 开发者指南 | MDN](https://developer.mozilla.org/zh-CN/docs/Web/Guide/CSS/Understanding_z_index/Stacking_without_z-index)
+
+
+---
+
+``Element.style.*``取的是元素的style属性中设置的值，因此如果没有在该属性里设值，获取到的即为empty。
