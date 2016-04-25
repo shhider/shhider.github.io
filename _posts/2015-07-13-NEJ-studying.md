@@ -4,155 +4,12 @@ title: NEJ学习、实践笔记
 category: code
 ---
 
-## NEJ的列表缓存（2015-12-2）
-
-### 先了解几个方法和事件
-
-#### _$getList
-
-该方法实现于 `util/cache/list`
-
-首先`_$getListInCache`，检查是否已缓存：
-
-- 已缓存，结束；
-- 未缓存，触发`doloadlist`事件，传入的参数有回调函数`__getList`；
-
-#### __getList
-
-该方法实现于 `util/cache/list`
-
-第二个参数，要不直接是列表，要不就是：
-
-- {total:12,result:[]}
-- {total:13,list:[]}
-
-有`total`，直接会设置总量。
-
-写入缓存
-
-触发`onloadlist`事件，传入的跟上面是同一个`_option`变量
-
-#### doloadlist
-
-该事件的回调函数`__doLoadList`，在 `util/cache/abstract` 中实现了虚拟方法
-
-#### onloadlist
-
-该事件要在缓存类实例化时传入回调函数。
-
-### 接下来怎么从缓存中取数据呢？
-
-假设实例化后为`__cache`
-
-`__cache`实例化后调用`_$getList`方法，就会去加载列表。
-
-如果缓存中没有，那么会发请求，请求响应后触发`onloadlist`事件；若已经在缓存中存在，直接触发`onloadlist`事件。
-
-因此，`onloadlist`的回调函数，需要在实例化缓存列表时就指定。
-
-
-## NEJ的平台适配（2015-11-03）
-
-（标题有点大，其实就是记录一下NEJ已经帮忙做的事，提醒自己在使用时多注意）
-
-NEJ的平台适配非常完善，让开发者几乎察觉不到它的存在。以innerText为例，该属性是IE的自有属性，chrome等也做了支持，但Firefox并没有实现，所以在一般情况下并不能随意使用。NEJ的平台适配中：
-
-```javascript
-if (!('innerText' in document.body)){
-    HTMLElement.prototype['__defineGetter__']("innerText",function(){return this.textContent;});
-    HTMLElement.prototype['__defineSetter__']("innerText",function(_content){this.textContent = _content;});
-}
-```
-
-对于不支持innerText的浏览器，使用textContent属性（W3C标准属性）去实现。
-
-## ajax提交(2015-08-15)
-
-我们在用NEJ进行ajax提交时，一般会用``util/ajax/rest``和``util/ajax/xdr``来实现。
-
-当使用前者``util/ajax/rest``时，所发出的请求的``Content-Type``字段值为``application-json``，数据部分格式也直接是json字符串格式。一切感觉很和谐，唯独遗憾的是，现在一些后台对``application-json``形式的请求支持度不高，需要开发者一番特殊处理才能拿到数据。
-
-而后者``util/ajax/xdr``主要是基本的一些请求方式，各种后台的支持情况应该是都很好。但是在使用中却发现，进行POST请求时，后台还是无法拿到数据。这是怎么回事呢？
-
-这一节就是要来解决这个问题。打开F12来查看一下请求，我们看到：``Content-Type``是正常的``application/x-www-form-urlencoded``，但请求的数据却是``[object object]``。一般，我们是这样调用``_$request``的：
-
-```javascript
-_j._$request('/api/test', {
-  method: 'POST',
-  type: 'JSON',
-  data: {
-    username: name,
-    password: pwd
-  },
-  onload: function(res){}
-  /* more */
-});
-```
-
-请求数据保存在data属性中，一般就是简单对象类型。所以一定在哪里被toString了。
-
-经过控制台的一路跟踪，一直到发出请求的最后一步，data属性都没有被处理过。来看看最后一步是这样的：
-
-```javascript
-/* util/ajax/proxy/xhr.js, line: 130 */
-this.__xhr.send(_request.data);
-```
-
-那么问题应该就出在这，对于xhr的send方法，查阅资料得到：
-
-```javascript
-void send([data = null]);
-/**
- * data参数可选，支持以下类型：
- * - ArrayBuffer
- * - Blob
- * - Document
- * - DomString(string)*
- * - FormData
- * 
- * 对以上这些类型的解释，可以移步张鑫旭的博客：
- * http://www.zhangxinxu.com/wordpress/2013/10/understand-domstring-document-formdata-blob-file-arraybuffer/
- */
-```
-
-可以看到，简单对象类型在send方法并不被接受。简单对象类型data在这里被强制toString，变成了[object object]。
-
-所以我们在这之前要对data进行转换成上面的其中一种类型。
-
-一般来说，ajax请求的``Content-Type``都是``application/x-www-form-urlencoded``（还有比较新的``application/json``）。大部分后台程序面对``application/x-www-form-urlencoded``请求，会把请求数据部分按照``aa=xx&&bb=yy&&cc=zz``这样的格式来解析。
-
-所以了，我们就直接把data转换成上面说的需要的格式。先来测试一下，把send的参数转换成字符串：
-
-```javascript
-this.__xdr.send(_u._$object2string(_request.data, '&'));
-```
-
-经过测试，果然发出了正确的请求，并获得正确的响应。
-
-不过，直接在这一句转换类型是不合理的，因为有时候可能会有其他Content-Type的请求，最后都会走这一句。所以针对我们针对``application/x-www-form-urlencoded``来进行单独处理。本来我是想模仿NEJ处理ajx上传文件时的做法，使用FormData对象来转换成可用的类型：
-
-```javascript
-/* util/ajax/proxy/xhr.js, line: 92 */
-if (_headers[_g._$HEAD_CT]===_g._$HEAD_CT_FILE){
-    // ...
-    _request.data = new FormData(_request.data);
-    // ...
-}
-```
-
-但是根据资料：[FormData - Web API 接口| MDN](https://developer.mozilla.org/zh-CN/docs/Web/API/FormData)，IE9及以下版本IE不支持FormData对象。并且，我查找了NEJ代码，没有相关的兼容性处理，所以我在这里还是选择以字符串形式处理，以保证基本的兼容性，如下：
-
-在send之前检查Content-Type类型，如果是``application/x-www-form-urlencoded``，那么就把参数转换成所需格式的字符串(string)。
-
-```javascript
-if(_headers[_g._$HEAD_CT]===_g._$HEAD_CT_FORM){
-    _request.data = _u._$object2string(_request.data, '&');
-}
-```
-
-另外有一点就是，相关方法在处理请求参数时，如果没有设置Content-Type，就会默认设置为``application/x-www-form-urlencoded``（util/ajax/proxy/proxy.js, line: 88）。当使用``util/ajax/rest``时，NEJ会自动设置Content-Type为``application/json``；而如果在设置请求参数时设置Content-Type为``application/x-www-form-urlencoded``，那么当前处理方法也并不能正确地发出请求。所以默认情况下，笔者所做的改动并不会影响到rest请求。
-
-= = = = = = = = Update(2015-07-22) = = = = = = = =
+> 更新记录
+> 
+> - 【2015-12-02】添加列表缓存器的基本方法介绍和执行过程；
+> - 【2015-11-03】添加NEJ的平台适配特性简介；
+> - 【2015-08-15】添加NEJ的Ajax模块简介；
+> - 【2015-07-22】本文初稿，NEJ模块调度系统简介；
 
 NEJ，Nice Easy JavaScript，出自网易前端大神——genify之手，是网易产品线中使用最广泛的前端框架。
 
@@ -284,9 +141,154 @@ location.search = '?aa=11'
 
 今天又碰到了这个障碍，所以又看了看相关代码，终于发现，其实NEJ已经帮我们做了这块工作，刚才的前后两种情况都会把查询数据解析出来，只是最后没有保存到location对象中。不过在onbeforechange事件传入的参数中，还带着query数据，只要保存到location对象中，后续就可以取用了。
 
-## 模版系统
+## ajax提交
 
-## 模块测试
+我们在用NEJ进行ajax提交时，一般会用``util/ajax/rest``和``util/ajax/xdr``来实现。
+
+当使用前者``util/ajax/rest``时，所发出的请求的``Content-Type``字段值为``application-json``，数据部分格式也直接是json字符串格式。一切感觉很和谐，唯独遗憾的是，现在一些后台对``application-json``形式的请求支持度不高，需要开发者一番特殊处理才能拿到数据。
+
+而后者``util/ajax/xdr``主要是基本的一些请求方式，各种后台的支持情况应该是都很好。但是在使用中却发现，进行POST请求时，后台还是无法拿到数据。这是怎么回事呢？
+
+这一节就是要来解决这个问题。打开F12来查看一下请求，我们看到：``Content-Type``是正常的``application/x-www-form-urlencoded``，但请求的数据却是``[object object]``。一般，我们是这样调用``_$request``的：
+
+```javascript
+_j._$request('/api/test', {
+  method: 'POST',
+  type: 'JSON',
+  data: {
+    username: name,
+    password: pwd
+  },
+  onload: function(res){}
+  /* more */
+});
+```
+
+请求数据保存在data属性中，一般就是简单对象类型。所以一定在哪里被toString了。
+
+经过控制台的一路跟踪，一直到发出请求的最后一步，data属性都没有被处理过。来看看最后一步是这样的：
+
+```javascript
+/* util/ajax/proxy/xhr.js, line: 130 */
+this.__xhr.send(_request.data);
+```
+
+那么问题应该就出在这，对于xhr的send方法，查阅资料得到：
+
+```javascript
+void send([data = null]);
+/**
+ * data参数可选，支持以下类型：
+ * - ArrayBuffer
+ * - Blob
+ * - Document
+ * - DomString(string)*
+ * - FormData
+ * 
+ * 对以上这些类型的解释，可以移步张鑫旭的博客：
+ * http://www.zhangxinxu.com/wordpress/2013/10/understand-domstring-document-formdata-blob-file-arraybuffer/
+ */
+```
+
+可以看到，简单对象类型在send方法并不被接受。简单对象类型data在这里被强制toString，变成了[object object]。
+
+所以我们在这之前要对data进行转换成上面的其中一种类型。
+
+一般来说，ajax请求的``Content-Type``都是``application/x-www-form-urlencoded``（还有比较新的``application/json``）。大部分后台程序面对``application/x-www-form-urlencoded``请求，会把请求数据部分按照``aa=xx&&bb=yy&&cc=zz``这样的格式来解析。
+
+所以了，我们就直接把data转换成上面说的需要的格式。先来测试一下，把send的参数转换成字符串：
+
+```javascript
+this.__xdr.send(_u._$object2string(_request.data, '&'));
+```
+
+经过测试，果然发出了正确的请求，并获得正确的响应。
+
+不过，直接在这一句转换类型是不合理的，因为有时候可能会有其他Content-Type的请求，最后都会走这一句。所以针对我们针对``application/x-www-form-urlencoded``来进行单独处理。本来我是想模仿NEJ处理ajx上传文件时的做法，使用FormData对象来转换成可用的类型：
+
+```javascript
+/* util/ajax/proxy/xhr.js, line: 92 */
+if (_headers[_g._$HEAD_CT]===_g._$HEAD_CT_FILE){
+    // ...
+    _request.data = new FormData(_request.data);
+    // ...
+}
+```
+
+但是根据资料：[FormData - Web API 接口| MDN](https://developer.mozilla.org/zh-CN/docs/Web/API/FormData)，IE9及以下版本IE不支持FormData对象。并且，我查找了NEJ代码，没有相关的兼容性处理，所以我在这里还是选择以字符串形式处理，以保证基本的兼容性，如下：
+
+在send之前检查Content-Type类型，如果是``application/x-www-form-urlencoded``，那么就把参数转换成所需格式的字符串(string)。
+
+```javascript
+if(_headers[_g._$HEAD_CT]===_g._$HEAD_CT_FORM){
+    _request.data = _u._$object2string(_request.data, '&');
+}
+```
+
+另外有一点就是，相关方法在处理请求参数时，如果没有设置Content-Type，就会默认设置为``application/x-www-form-urlencoded``（util/ajax/proxy/proxy.js, line: 88）。当使用``util/ajax/rest``时，NEJ会自动设置Content-Type为``application/json``；而如果在设置请求参数时设置Content-Type为``application/x-www-form-urlencoded``，那么当前处理方法也并不能正确地发出请求。所以默认情况下，笔者所做的改动并不会影响到rest请求。
+
+
+## NEJ的列表缓存
+
+### 先了解几个方法和事件
+
+#### _$getList
+
+该方法实现于 `util/cache/list`
+
+首先`_$getListInCache`，检查是否已缓存：
+
+- 已缓存，结束；
+- 未缓存，触发`doloadlist`事件，传入的参数有回调函数`__getList`；
+
+#### __getList
+
+该方法实现于 `util/cache/list`
+
+第二个参数，要不直接是列表，要不就是：
+
+- {total:12,result:[]}
+- {total:13,list:[]}
+
+有`total`，直接会设置总量。
+
+写入缓存
+
+触发`onloadlist`事件，传入的跟上面是同一个`_option`变量
+
+#### doloadlist
+
+该事件的回调函数`__doLoadList`，在 `util/cache/abstract` 中实现了虚拟方法
+
+#### onloadlist
+
+该事件要在缓存类实例化时传入回调函数。
+
+### 接下来怎么从缓存中取数据呢？
+
+假设实例化后为`__cache`
+
+`__cache`实例化后调用`_$getList`方法，就会去加载列表。
+
+如果缓存中没有，那么会发请求，请求响应后触发`onloadlist`事件；若已经在缓存中存在，直接触发`onloadlist`事件。
+
+因此，`onloadlist`的回调函数，需要在实例化缓存列表时就指定。
+
+
+## NEJ的平台适配
+
+（标题有点大，其实就是记录一下NEJ已经帮忙做的事，提醒自己在使用时多注意）
+
+NEJ的平台适配非常完善，让开发者几乎察觉不到它的存在。以innerText为例，该属性是IE的自有属性，chrome等也做了支持，但Firefox并没有实现，所以在一般情况下并不能随意使用。NEJ的平台适配中：
+
+```javascript
+if (!('innerText' in document.body)){
+    HTMLElement.prototype['__defineGetter__']("innerText",function(){return this.textContent;});
+    HTMLElement.prototype['__defineSetter__']("innerText",function(_content){this.textContent = _content;});
+}
+```
+
+对于不支持innerText的浏览器，使用textContent属性（W3C标准属性）去实现。
 
 
 ## 其他
@@ -300,7 +302,7 @@ location.search = '?aa=11'
 在继续对recycle方法追究的过程中。还学习到几点：
 
 - 在定义一个子类型时，某方法是其原型链中已经存在的方法，那么重写该方法就会屏蔽原来的那个方法。NEJ则添加了\_\_super方法，去调用执行上一个同名方法；
-- UI控件在\_\_recyle方法调用后，节点也会从页面中去除。我一开始想，肯定是有个过程中执行了removeChild方法，而在追寻调用链的过程中，却没有看到这个方法。经过定位，最后发现节点是在原生方法appendChild执行后被去除的（base/element#_$removeByEC）。查看文档——[Node.appendChild() - Web API Interfaces | MDN](https://developer.mozilla.org/en-US/docs/Web/API/Node/appendChild)，可以看到这样一段话：
+- UI控件在\_\_recyle方法调用后，节点也会从页面中去除。我一开始想，肯定是有个过程中执行了removeChild方法，而在追寻调用链的过程中，却没有看到这个方法。经过定位，最后发现节点是在原生方法appendChild执行后被去除的（base/element#_$removeByEC）。查看文档—— [Node.appendChild() - Web API Interfaces \| MDN](https://developer.mozilla.org/en-US/docs/Web/API/Node/appendChild) ，可以看到这样一段话：
 
 > The Node.appendChild() method adds a node to the end of the list of children of a specified parent node. **If the given child is a reference to an existing node in the document, appendChild() moves it from its current position to the new position** (i.e. there is no requirement to remove the node from its parent node before appending it to some other node).
 
