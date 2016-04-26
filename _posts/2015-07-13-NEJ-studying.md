@@ -6,10 +6,12 @@ category: code
 
 > 更新记录
 > 
+> - 【2016-04-26】添加单页应用中模块切换前二次确认的实现介绍；
 > - 【2015-12-02】添加列表缓存器的基本方法介绍和执行过程；
 > - 【2015-11-03】添加NEJ的平台适配特性简介；
 > - 【2015-08-15】添加NEJ的Ajax模块简介；
 > - 【2015-07-22】本文初稿，NEJ模块调度系统简介；
+> 
 
 NEJ，Nice Easy JavaScript，出自网易前端大神——genify之手，是网易产品线中使用最广泛的前端框架。
 
@@ -43,24 +45,24 @@ NEJ提供了一套模块调度系统用于支持单页富应用的系统架构�
 这里看一个例子。
 
 ```javascript
-  modules:{
-      '/?/head/':'module/head/index.html',
-      '/?/blog/tab/':'module/blog/tab/index.html',
-      '/m':{
-          module:'module/layout/index.html',
-          composite:{
-              head:'/?/head/'
-          }
-      },
-      '/m/blog':{
-          module:'module/layout/blog/index.html',
-          composite:{
-              tab:'/?/blog/tab/'
-          }
-      },
-      '/m/blog/tag/':'module/blog/tag/index.html',
-      '/m/blog/list/':'module/blog/list/index.html',
-  }
+modules:{
+    '/?/head/':'module/head/index.html',
+    '/?/blog/tab/':'module/blog/tab/index.html',
+    '/m':{
+        module:'module/layout/index.html',
+        composite:{
+            head:'/?/head/'
+        }
+    },
+    '/m/blog':{
+        module:'module/layout/blog/index.html',
+        composite:{
+            tab:'/?/blog/tab/'
+        }
+    },
+    '/m/blog/tag/':'module/blog/tag/index.html',
+    '/m/blog/list/':'module/blog/list/index.html',
+}
 ```
 
 当访问``/index.html#/m/blog/list/``页面时，调度系统解析Hash：``/m/blog/list/``，制定了解析顺序：m > blog > list。前项即为后项的父模块，后项为前项的子模块。
@@ -153,14 +155,14 @@ location.search = '?aa=11'
 
 ```javascript
 _j._$request('/api/test', {
-  method: 'POST',
-  type: 'JSON',
-  data: {
-    username: name,
-    password: pwd
-  },
-  onload: function(res){}
-  /* more */
+    method: 'POST',
+    type: 'JSON',
+    data: {
+        username: name,
+        password: pwd
+    },
+    onload: function(res){}
+    /* more */
 });
 ```
 
@@ -232,7 +234,7 @@ if(_headers[_g._$HEAD_CT]===_g._$HEAD_CT_FORM){
 
 ### 先了解几个方法和事件
 
-#### _$getList
+1、``_$getList``
 
 该方法实现于 `util/cache/list`
 
@@ -241,7 +243,7 @@ if(_headers[_g._$HEAD_CT]===_g._$HEAD_CT_FORM){
 - 已缓存，结束；
 - 未缓存，触发`doloadlist`事件，传入的参数有回调函数`__getList`；
 
-#### __getList
+2、``__getList``
 
 该方法实现于 `util/cache/list`
 
@@ -256,11 +258,11 @@ if(_headers[_g._$HEAD_CT]===_g._$HEAD_CT_FORM){
 
 触发`onloadlist`事件，传入的跟上面是同一个`_option`变量
 
-#### doloadlist
+3、``doloadlist``
 
 该事件的回调函数`__doLoadList`，在 `util/cache/abstract` 中实现了虚拟方法
 
-#### onloadlist
+4、``onloadlist``
 
 该事件要在缓存类实例化时传入回调函数。
 
@@ -290,6 +292,95 @@ if (!('innerText' in document.body)){
 
 对于不支持innerText的浏览器，使用textContent属性（W3C标准属性）去实现。
 
+
+## 单页应用中实现模块切换前二次确认
+
+我们在业务开发中，常常会有这样的场景：某表单页，有较多的内容需要用户填写，为了防止用户误操作切出表单页而导致填写的内容丢失，需要在离开当前模块时进行二次确认，即出现弹窗，询问用户是否确认离开页面。
+
+在一般的Web应用中，我们通过监听``onbeforeunload``事件，可以在页面被 **卸载** 时执行回调，阻止或继续执行卸载操作。
+
+而在基于NEJ的单页应用中，模块之间的切换不属于页面“卸载”，不会触发``onbeforeunload``事件，因此也就无法通过该事件来实现。那么该怎么实现呢？NEJ中有没有给出有关的方法或事件呢？
+
+首先，我们想到基于NEJ的单页应用中“页面”的跳转是根据URL的Hash进行的，所以头绪就是找找NEJ有没有对``onhashchange``事件的处理。通过搜索NEJ源码，找到在``pro/util/history/history``中，``location.active()``方法监听了``onhashchange``事件：
+
+```javascript
+/**
+ * 启动地址检测
+ */
+location.active = (function(){
+    // ...
+    var _onLocationChange = function(_href){
+        // locked from history back
+        if (!!_locked){
+            _locked = !1;
+            return;
+        }
+        var _event = {
+            oldValue:_location,
+            newValue:_getLocation()
+        };
+        // check ignore beforeurlchange event fire
+        if (!!location.ignored){
+            location.ignored = !1;
+        }else{
+            _v._$dispatchEvent(
+                location,'beforeurlchange',_event
+            );
+            if (_event.stopped){
+                if (!!_location){
+                    _locked = !0;
+                    _setLocation(_location.href,!0);
+                }
+                return;
+            };
+        }
+        // ...
+    };
+    // ...
+    return function(_context){
+        // ...
+            _v._$addEvent(
+                _ctxt,'hashchange',
+                _onLocationChange
+            );
+            _onLocationChange();
+        // ...
+    };
+})();
+```
+
+可以看到，在hash变化后，抛出了``beforeurlchange``事件，该事件回调对象同样可以设置stopped属性，把hash重新设置回来、阻止了接下来的模块切换。
+
+再看看之前介绍过的NEJ模块调度器代码，可以看到启动方法``_$startup()``的后续逻辑中，调用了``location.active``方法，所以在NEJ单页应用中我们可以监听``location``对象，来达到我们的目的了~
+
+在表单模块中：
+
+```javascript
+// ...
+_pro.__onShow = function(_options){
+    this.__super(_options);
+    // 注意模块回收时销毁事件监听
+    this.__doInitDomEvent([
+        [window.location, 'beforeurlchange', this.__onBeforeQuit._$bind(this)]
+    ]);
+};
+
+_pro.__onBeforeQuit = function(_event){
+    // 可以加一些判断，决定是否要弹出确认
+    _event.stopped = confirm('确认离开本页面吗？所有未提交的内容将丢失');
+};
+// ...
+```
+
+在这个基础思路上，通常还会有两点需求：
+
+1、为了交互的一致，我们通常需要使用自定义的confirm弹窗。那就是在自定义confirm的确定按钮跳转时不阻止事件、其他跳转则阻止。但是``beforeurlchange``事件的事件对象没有办法加标识啊？那么放宽眼光，可以从``location.active``方法中看到，可以通过设置``location.ignored``属性直接阻止事件的触发！
+
+所以，在``beforeurlchange``事件回调中，直接阻止事件的继续执行；在confirm的确定操作执行跳转前，先设置``location.ignored = true``，那么页面就可以正确跳转到其他模块。
+
+2、在页面真正的卸载时，同样要进行二次确认，也就是要监听``window.onbeforeurlchange``事件。不过该事件只能是同步执行，只能通过原生``confirm``来实现确认操作。因此该需求点与上述【自定义confirm】可以说是冲突的，不知道大家有没有什么好的解决方案？
+
+另外，除了本节介绍的实现方案外，我还试验过``dispatcher``的``onbeforechange``事件、``dispatcher/module``的``__onBeforeHide``方法等其他思路，都不能理想地实现模块切换二次确认，就不在这里赘述了。
 
 ## 其他
 

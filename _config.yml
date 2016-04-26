@@ -11,6 +11,8 @@ permalink: /blog/:year/:month/:title
 paginate: 12
 paginate_path: "articles/page:num"
 
+gems: [jekyll-paginate]
+
 markdown: kramdown
 kramdown:
     input: GFM                # use Github Flavored Markdown !important
