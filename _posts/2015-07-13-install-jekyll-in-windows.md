@@ -25,3 +25,19 @@ ruby dk.rb install
 7. 最后，就可以在你的项目目录执行``jekyll server --watch``，看到你的站点了。
 
 以上。
+
+### 更新
+
+现在在Ruby1.9.3版本下，第6步安装jekyll时，最后会提示：
+
+```
+Error installing jekyll:
+jekyll requires Ruby version >= 2.0.0.
+```
+
+根据资料和亲测，以下资料有效：
+
+> sudo gem install jekyll -v 2.5.3
+> The default command apparently tries to install Jekyll 3, which was released on October 27th. The 2.5.3 version still works with Ruby 1.9.3, and its quite allright for me, probably for you too.
+
+问题地址：[StackOverflow](http://stackoverflow.com/questions/33503796/error-installing-jekyll-requires-ruby-2-0-0)
