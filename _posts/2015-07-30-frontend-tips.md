@@ -236,3 +236,22 @@ Hash部分并不会包含在请求中。因此，后端程序也是无法取得�
 - [Hash URIs | W3C Blog](https://www.w3.org/blog/2011/05/hash-uris/)
 - [URL Fragments and Redirects - IEInternals - Site Home - MSDN Blogs](http://blogs.msdn.com/b/ieinternals/archive/2011/05/17/url-fragments-and-redirects-anchor-hash-missing.aspx)
 - [Bug 24175 – URL Redirect Loses Fragment](https://bugs.webkit.org/show_bug.cgi?id=24175)
+
+
+---
+
+**Stacking without z-index**
+
+> - 在一组由不含有任何z-index属性的同类元素，如例子中的定位块元素（DIV #1 至 #4），这些元素按照它们在HTML结构中出现的顺序堆叠，而不管它们的定位属性如何。
+> - 普通流中不含有定位属性的标准块元素（DIV #5）始终先于定位元素渲染并出现在定位元素的下层，即便它们在HTML结构中出现的位置晚于定位元素也是如此。
+
+更多关于CSS的z-index属性，请看[理解CSS的 z-index属性 - Web 开发者指南 | MDN](https://developer.mozilla.org/zh-CN/docs/Web/Guide/CSS/Understanding_z_index)
+
+### Reference
+
+- [Stacking without z-index - Web 开发者指南 | MDN](https://developer.mozilla.org/zh-CN/docs/Web/Guide/CSS/Understanding_z_index/Stacking_without_z-index)
+
+
+---
+
+``Element.style.*``取的是元素的style属性中设置的值，因此如果没有在该属性里设值，获取到的即为empty。

@@ -1,17 +1,18 @@
 name: shhider
+title: shhider的个人博客
+description: 前端开发一枚，目前就职于网易杭州。
+email: shhider@163.com
 url: http://shhider.github.io
-source:      .
-destination: ./_site
-lsi:      false
-safe:     false
-markdown: redcarpet
+baseurl: /
+
+encoding: utf-8
+
 permalink: /blog/:year/:month/:title
 paginate: 12
 paginate_path: "articles/page:num"
-encoding: utf-8
 
-post_defaults:
-  layout: post
+gems: [jekyll-paginate]
 
-redcarpet:
-  extensions: ["tables", "autolink"]
+markdown: kramdown
+kramdown:
+    input: GFM                # use Github Flavored Markdown !important
