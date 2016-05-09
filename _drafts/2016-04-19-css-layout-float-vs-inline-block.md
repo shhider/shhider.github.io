@@ -14,6 +14,8 @@ category: code
 
 呐，再看一眼开头的话~这些产品的业务中，肯定有些因素使开发者们选择了``float:left``来进行横向布局。
 
+可以说，``inline-block``是一项被忽视了的「黑科技」。
+
 
 ## 使用float进行布局的典型场景
 
@@ -23,26 +25,57 @@ category: code
 
 （能不能不用这种float来实现这种局部呢？）
 
-float布局最初是为了实现文字环绕图片的排版方式。
 
-** 坏处 **
+### 实现文字环绕图片排版
 
-- 高度塌陷；
-- 需要清除浮动；
-- 双刃剑——环绕布局。当前流行的卡片式布局可能会出现问题；
+### 在页面布局中的应用
+
+#### 天然的顶部对齐
+
+
+### 脱离了文档流（待考证），但依然占据位置
+
+
+### 高度塌陷
+
+
+### 需要清除浮动；
+
+
+总结来说，浮动布局是一把双刃剑，在帮助我们快速实现布局的同时，还需要额外的节点和css属性来处理带来的问题。
 
 
 
 ## inline-block的出现
 
-** 好处 **
+### 语义更准确、行为更简单
 
-- 语义上更符合；
-- 可以应用``text-align``与``vertical-align``、``white-space``等属性；
+#### 未脱离文档流
 
-** 副作用 **
+#### 层叠关系清晰
 
-- 最大的问题就是空白符
+![HTML元素层叠关系](/public/img/20160419-1-02.png)
+
+### 通过vertical-align属性轻松控制垂直对齐方式
+
+### 具备了inline元素的某些特性，使用高效
+
+``white-space``
+
+可以控制``inline-block``元素列表不换行，这一点在布局上比较可靠，不会出现意外情况而导致的布局混乱；
+
+``text-align``
+
+通过left、right、center属性值，我们可以实现inline-block元素居左、居右以及居中显示；另外，我们还可以使用justify值实现横向布局下，元素自适应的两端对齐。
+
+### 元素之间的空格问题
+
+默认情况下，inline-block元素之间，会出现一个4px或6px大小的空白。
+
+#### 解决方法
+
+1、``font-size: 0``；
+
 
 ### inline-block的应用举例
 
@@ -50,8 +83,9 @@ float布局最初是为了实现文字环绕图片的排版方式。
 - 自适应的卡片排布；
 - text-align: justify；
 - 内联块元素：文本与按钮并排
+- 栅格系统
 
-
+可以说，除了「文字环绕」只能用float实现，其他场景下都可以用``inline-block``方式代替，各方面表现更加协调。
 
 ## 其他布局方案
 
@@ -67,7 +101,7 @@ float布局最初是为了实现文字环绕图片的排版方式。
 
 > 「小孩子才分对错，成年人只看利弊」
 
-本文主要比较了用``float``和``inline-block``来布局的优势和劣势，但并不是说哪种方式更好，我们在开发时，要根据实际需求和场景来选择实现方案。
+本文主要比较了用``float``和``inline-block``来布局的优势和劣势，但并不是说哪种方式更好。还是那句话——具体情况具体分析，在进行页面开发时根据实际需求和场景来选择实现方案。
 
 
 
@@ -77,3 +111,5 @@ float布局最初是为了实现文字环绕图片的排版方式。
 - [inline-block 前世今生-层叠之美-inline-block 空隙, inline-block 间隙, inline-block 间距, inline-blcok 兼容, IE6 inline-blcok, 跨浏览器inline-block,inline-block bug 云路科技](http://www.iyunlu.com/view/css-xhtml/64.html)
 - [Float vs. Inline-Block](http://www.ternstyle.us/blog/float-vs-inline-block)
 - [拜拜了,浮动布局-基于display:inline-block的列表布局 « 张鑫旭-鑫空间-鑫生活](http://www.zhangxinxu.com/wordpress/2010/11/%E6%8B%9C%E6%8B%9C%E4%BA%86%E6%B5%AE%E5%8A%A8%E5%B8%83%E5%B1%80-%E5%9F%BA%E4%BA%8Edisplayinline-block%E7%9A%84%E5%88%97%E8%A1%A8%E5%B8%83%E5%B1%80/)
+- [应不应该使用inline-block代替float_inline-block, float 教程_w3cplus](http://www.w3cplus.com/css/inline-blocks.html)
+- [回归CSS标准之Float | EFE Tech](http://efe.baidu.com/blog/float/)
