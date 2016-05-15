@@ -17,7 +17,7 @@ category: code
 可以说，``inline-block``是一项被忽视了的「黑科技」。
 
 
-## 使用float进行布局的典型场景
+## float浮动属性的典型应用场景
 
 使用float布局最典型的场景就是，一个元素下需要包含一个居左、一个居右的元素，如常见的页面头部。
 
@@ -33,7 +33,7 @@ category: code
 #### 天然的顶部对齐
 
 
-### 脱离了文档流（待考证），但依然占据位置
+### 脱离了普通流（待考证），但依然占据位置
 
 
 ### 高度塌陷
@@ -46,7 +46,7 @@ category: code
 
 
 
-## inline-block的出现
+## 隐藏的黑科技——inline-block
 
 ### 语义更准确、行为更简单
 
@@ -57,6 +57,8 @@ category: code
 ![HTML元素层叠关系](/public/img/20160419-1-02.png)
 
 ### 通过vertical-align属性轻松控制垂直对齐方式
+
+
 
 ### 具备了inline元素的某些特性，使用高效
 
@@ -112,4 +114,9 @@ category: code
 - [Float vs. Inline-Block](http://www.ternstyle.us/blog/float-vs-inline-block)
 - [拜拜了,浮动布局-基于display:inline-block的列表布局 « 张鑫旭-鑫空间-鑫生活](http://www.zhangxinxu.com/wordpress/2010/11/%E6%8B%9C%E6%8B%9C%E4%BA%86%E6%B5%AE%E5%8A%A8%E5%B8%83%E5%B1%80-%E5%9F%BA%E4%BA%8Edisplayinline-block%E7%9A%84%E5%88%97%E8%A1%A8%E5%B8%83%E5%B1%80/)
 - [应不应该使用inline-block代替float_inline-block, float 教程_w3cplus](http://www.w3cplus.com/css/inline-blocks.html)
-- [回归CSS标准之Float | EFE Tech](http://efe.baidu.com/blog/float/)
+- [回归CSS标准之Float \| EFE Tech](http://efe.baidu.com/blog/float/)
+- [Visual formatting model](https://www.w3.org/TR/CSS22/visuren.html)
+- [那些年我们一起清除过的浮动-层叠之美-清除浮动,清除浮动方法,闭合浮动,hasLayout,Block formatting contexts,块级格式化上下文,伪元素清除浮动 云路科技](http://www.iyunlu.com/view/css-xhtml/55.html)
+- [inline-block 前世今生 - 前端技术 | TaoBaoUED](http://ued.taobao.org/blog/2012/08/inline-block/)
+- [inline-block 未来-层叠之美- 云路科技](http://www.iyunlu.com/view/css-xhtml/79.html)
+- [有哪些好方法能处理 display: inline-block 元素之间出现的空格？ - 一丝的回答 - 知乎](https://www.zhihu.com/question/21468450/answer/18342657)
