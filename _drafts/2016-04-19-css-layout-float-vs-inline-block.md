@@ -1,29 +1,18 @@
 ---
 layout: post
-title: CSS布局的与时俱进——从float到inline-block
+title: inline-block元素在页面布局中的应用
 category: code
 ---
 
-> 「小孩子才分对错，成年人只看利弊」
+元素横向排列，是前端页面中常见的布局方式。而目前实现横向排列，最普遍的方法就是使用CSS的浮动——Float属性。而本文要抛弃Float属性，介绍``inline-block``在页面布局中的应用，以及相比Float布局的优劣之处。
 
-## 引言
+> ``inline-block``是一项被忽视了的「黑科技」。    ———— 尼古拉斯·浩宏
 
-（我自己怎么从float到inline-block）
+## inline-block
 
-从目前来看，公司的首页（www.163.com）、易信官网（yixin.im）、考拉（www.kaola.com）满满的都是``float:left``
-
-呐，再看一眼开头的话~这些产品的业务中，肯定有些因素使开发者们选择了``float:left``来进行横向布局。
-
-可以说，``inline-block``是一项被忽视了的「黑科技」。
+css属性为inline-block的元素，称为行内块级元素。表现方式是元素内部表现为块级框，自身表现为行内级框。
 
 
-## float浮动属性的典型应用场景
-
-使用float布局最典型的场景就是，一个元素下需要包含一个居左、一个居右的元素，如常见的页面头部。
-
-![网易蜂巢首页](/public/img/20160419-1-01.png)
-
-（能不能不用这种float来实现这种局部呢？）
 
 
 ### 实现文字环绕图片排版
@@ -34,6 +23,10 @@ category: code
 
 
 ### 脱离了普通流（待考证），但依然占据位置
+
+浮动元素脱离出了普通流，但是仍然对普通流的布局有影响。
+
+CSS总共只有3种：「普通流」、「浮动」、「绝对定位」。
 
 
 ### 高度塌陷
@@ -49,6 +42,8 @@ category: code
 ## 隐藏的黑科技——inline-block
 
 ### 语义更准确、行为更简单
+
+不需要冗余的节点，简直是强迫症的福音。
 
 #### 未脱离文档流
 
@@ -73,6 +68,8 @@ category: code
 ### 元素之间的空格问题
 
 默认情况下，inline-block元素之间，会出现一个4px或6px大小的空白。
+
+造成inline-block元素空隙的本质是HTML中存在的空白符。（为啥这里的空白符就回表现出来呢？？）
 
 #### 解决方法
 
@@ -109,6 +106,8 @@ category: code
 
 ## Reference
 
+- [Visual formatting model](https://www.w3.org/TR/CSS22/visuren.html#floats)
+
 - [CSS 中，position：absolute、float、display：inline-block 都能实现相同效果，区别是什么？ - 知乎](https://www.zhihu.com/question/20821569)
 - [inline-block 前世今生-层叠之美-inline-block 空隙, inline-block 间隙, inline-block 间距, inline-blcok 兼容, IE6 inline-blcok, 跨浏览器inline-block,inline-block bug 云路科技](http://www.iyunlu.com/view/css-xhtml/64.html)
 - [Float vs. Inline-Block](http://www.ternstyle.us/blog/float-vs-inline-block)
@@ -117,6 +116,6 @@ category: code
 - [回归CSS标准之Float \| EFE Tech](http://efe.baidu.com/blog/float/)
 - [Visual formatting model](https://www.w3.org/TR/CSS22/visuren.html)
 - [那些年我们一起清除过的浮动-层叠之美-清除浮动,清除浮动方法,闭合浮动,hasLayout,Block formatting contexts,块级格式化上下文,伪元素清除浮动 云路科技](http://www.iyunlu.com/view/css-xhtml/55.html)
-- [inline-block 前世今生 - 前端技术 | TaoBaoUED](http://ued.taobao.org/blog/2012/08/inline-block/)
+- [inline-block 前世今生 - 前端技术 \| TaoBaoUED](http://ued.taobao.org/blog/2012/08/inline-block/)
 - [inline-block 未来-层叠之美- 云路科技](http://www.iyunlu.com/view/css-xhtml/79.html)
 - [有哪些好方法能处理 display: inline-block 元素之间出现的空格？ - 一丝的回答 - 知乎](https://www.zhihu.com/question/21468450/answer/18342657)
