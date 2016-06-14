@@ -1,0 +1,11 @@
+
+.g-doc{
+    padding: 100px 0;
+}
+
+h1, h2{
+    text-align: center;
+    color: #666;
+    font-family: "Microsoft Yahei";
+    font-weight: 100;
+}
