@@ -15,7 +15,7 @@ NEJ列表缓存器对应用开发最显著的两点优势是：
 - 集中管理应用中的异步请求，相同的请求逻辑只需写一次，具体页面中就只需要关心业务逻辑；
 - 快速实现对数据的缓存，减少无谓的网络请求，提升页面性能和用户体验；
 
-本文将从源码出发，结合我在实际应用中体会，介绍和分析NEJ列表缓存器的实现思路与使用方法。
+本文将从源码出发，结合我在实际应用中体会，介绍NEJ列表缓存器的使用方法和实现原理。
 
 （文中会使用一些NEJ的特定名词，第一次出现时会用繁体引号「」括起来）
 
@@ -23,11 +23,60 @@ NEJ列表缓存器对应用开发最显著的两点优势是：
 
 NEJ列表缓存器对象名为``_$$CacheList``，实现文件位于``/src/util/cache/list.js``。它继承的父类是``_$$CacheAbstract``，位于同目录的``cache.js``。基本的使用方法大致为以下几个步骤：
 
-1. 针对业务需求添加一个列表缓存器子类，如``_$$CacheUser``，继承自``_$$CacheList``；
+1. 针对业务需求实现一个列表缓存器子类，如``_$$CacheUser``，继承自``_$$CacheList``；
 2. 在子类中实现``_$doLoadList``、``__doLoadItem``等接口方法，或添加自定义的业务方法；
 2. 在相关业务脚本中引入子类文件，实例化列表缓存器，调用方法、处理事件回调。
 
-### 实例化参数
+### 实现列表缓存器子类
+
+要使用列表缓存器提供的功能，我们需要在子类中实现接口方法的具体逻辑。
+
+#### __doLoadList
+
+该方法实现从服务器载入列表。
+
+```javascript
+/**
+ * 从服务器载入列表
+ * 
+ * @event    module:util/cache/list._$$CacheList#doloadlist
+ * @param    {Object}   event  - 可选配置参数
+ * @property {String}   key    - 列表标识
+ * @property {Variable} ext    - 回调回传数据
+ * @property {Number}   data   - 需要提交到服务器的其他信息
+ * @property {Number}   offset - 偏移量
+ * @property {Number}   limit  - 数量
+ * @property {Function} onload - 请求回调
+ */
+```
+
+#### __doPullRefresh
+
+该方法实现从服务器前向刷新列表。
+
+#### __doLoadItem
+
+该方法实现从服务器载入列表项。
+
+#### __doAddItem
+
+该方法实现添加列表项至服务器。
+
+#### __doDeleteItem
+
+该方法实现从服务器上删除列表项。
+
+#### __doUpdateItem
+
+该方法实现更新列表项至服务器。
+
+#### __doFormatItem
+
+该方法实现格式化数据项，即把后端传的数据，转换到前端需要的格式（完全另返回一个对象也是可以的）。基础列表缓存器对象中是一个空方法，我们使用时覆盖即可。
+
+### 使用列表缓存器
+
+#### 实例化
 
 在实例化一个列表缓存器时，同样要传入参数对象。除事件绑定外，其它参数字段如下：
 
@@ -46,7 +95,7 @@ NEJ列表缓存器对象名为``_$$CacheList``，实现文件位于``/src/util/c
 - id是可选参数，不指定也不会有影响。后面所说的「缓存标识」就是指该参数，代码中用``cacheId``表示；
 - 当autogc设置为true时，在``_$clearListInCache``方法执行后会接着自动执行垃圾回收方法``__doGCAction``；
 
-### 获取数据列表
+#### _$getList
 
 调用``_$getList``方法。参数传入列表标识。后面所说的「列表标识」就是指该参数，代码中用``listKey``表示
 
@@ -62,30 +111,6 @@ NEJ列表缓存器对象名为``_$$CacheList``，实现文件位于``/src/util/c
  * @return   {Void}
 */
 ```
-
-#### __doLoadList
-
-```javascript
-/**
- * 从服务器载入列表
- * 
- * @event    module:util/cache/list._$$CacheList#doloadlist
- * @param    {Object}   event  - 可选配置参数
- * @property {String}   key    - 列表标识
- * @property {Variable} ext    - 回调回传数据
- * @property {Number}   data   - 需要提交到服务器的其他信息
- * @property {Number}   offset - 偏移量
- * @property {Number}   limit  - 数量
- * @property {Function} onload - 请求回调
- */
-```
-
-
-#### __doFormatItem
-
-该方法用于格式化数据项，即把后端传的数据，转换到前端需要的格式（完全另返回一个对象也是可以的）。基础列表缓存器对象中是一个空方法，我们使用时覆盖即可。
-
-### 获取数据项
 
 ## 原理解析
 
