@@ -36,7 +36,71 @@ NEJ列表缓存管理器对应用开发最显著的两点优势是：
 
 ### 实现列表缓存管理器子类
 
-要使用列表缓存管理器提供的功能，我们需要在子类中实现接口方法的具体逻辑。
+列表缓存管理器在执行过程中，会抛出以下的事件：
+
+```javascript
+doloadlist      // 
+doloaditem
+doadditem
+dodeleteitem
+doupdateitem
+dopullrefresh
+
+onlistload
+onitemload
+onitemadd
+onitemdelete
+onitemupdate
+onpullrefresh
+```
+
+列表缓存管理器子类需要实现的就是，实现响应加载数据事件的回调方法。
+
+在子类中进行绑定。在接下来的介绍中，将使用列表缓存管理基类指定的回调方法：
+
+```javascript
+/*
+ * util/cache/abstract._$$CacheListAbstract#__init
+ */
+this._$batEvent({
+    doloadlist:    this.__doLoadList._$bind(this),
+    doloaditem:    this.__doLoadItem._$bind(this),
+    doadditem:     this.__doAddItem._$bind(this),
+    dodeleteitem:  this.__doDeleteItem._$bind(this),
+    doupdateitem:  this.__doUpdateItem._$bind(this),
+    dopullrefresh: this.__doPullRefresh._$bind(this)
+});
+```
+
+所以你的子类文件可以这么写：
+
+```javascript
+NEJ.define([
+	'base/klass',
+    'util/cache/list'
+], function(_k, _t, _p, _o, _f, _r){
+	var _pro;
+    
+    _p._$$Cache = _k._$klass();
+    _pro = _p._$$Cache._$extend(_t._$$CacheList);
+    
+    _pro.__reset = function(_options){
+    	this.__super(_options);
+        this._$batEvent({
+            doloadlist:    this.__doLoadList._$bind(this),
+            doloaditem:    this.__doLoadItem._$bind(this),
+            doadditem:     this.__doAddItem._$bind(this),
+            dodeleteitem:  this.__doDeleteItem._$bind(this),
+            doupdateitem:  this.__doUpdateItem._$bind(this),
+            dopullrefresh: this.__doPullRefresh._$bind(this)
+        });
+    };
+    
+    return _p;
+});
+```
+
+接下来，实现指定的响应方法。
 
 #### __doLoadList
 
@@ -56,6 +120,8 @@ NEJ列表缓存管理器对应用开发最显著的两点优势是：
  * @property {Function} onload - 请求回调
  */
 ```
+
+
 
 #### __doPullRefresh
 
@@ -319,6 +385,8 @@ _pro.__doGCAction = function(){
 ```
 
 因此，对于不再需要了的数据列表，请在列表缓存管理器回收之前及时使用``_$clearListInCache``方法，或者在实例化时指定``autogc: true``。另外，数据项(item)不需要关心，本身就只在``this.__lspl.hash``里，回收时直接就删除了。
+
+数据列表，没有显式调用``_$clearListInCache``的列表项不会被清楚。
 
 ## 小结和建议
 
