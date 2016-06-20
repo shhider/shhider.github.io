@@ -22,7 +22,7 @@ NEJ列表缓存管理器对应用开发最显著的两点优势是：
 查看NEJ目录``/src/util/cache/``目录下的文件，关于列表缓存、存在继承关系的的类有3个：
 
 - **缓存管理基类**：``util/cache/cache._$$CacheAbstract``，继承NEJ控件基类。它提供了基于内存/本地存储的缓存管理、请求管理等实现；
-- **列表缓存管理器**：``util/cache/list._$$CacheList``，继承``_$$CacheAbstract``。它提供了更具体的缓存结构、事件设计、数据列表管理（分页）、数据项管理（增删改查）、垃圾回收等实现；
+- **列表缓存管理器**：``util/cache/list._$$CacheList``，继承``_$$CacheAbstract``。它提供了更具体的缓存结构、事件、数据列表管理（包括分页）、数据项管理（增删改查）、垃圾回收等实现；
 - **列表缓存管理基类**：``util/cache/abstract._$$CacheListAbstract``，继承``_$$CacheList``。它指定了几个关键事件的回调接口方法；对请求逻辑再封装，支持在项目中统一管理接口地址、请求错误处理等。
 
 本文介绍的列表缓存管理器主要是``_$$CacheList``的部分，其实现了列表缓存的大部分逻辑。缓存管理基类部分只关注基于内存的缓存结构和请求管理部分；列表缓存管理基类相对比较偏向上层的实现，具体的开发场景不一定适用，如在蜂巢开发中仅使用了其声明的事件回调方法、请求逻辑则根据蜂巢需求重新进行了封装，所以这部分不做详细介绍了。
@@ -102,14 +102,12 @@ NEJ.define([
 
 接下来，实现指定的响应方法。
 
-#### __doLoadList
+#### 加载数据列表
 
-该方法实现从服务器载入列表。
+当``doloadlist``事件抛出时，表示列表缓存管理器需要请求加载数据列表。子类中实现该事件的响应方法``__doLoadList``，执行时向服务端载入数据列表。随着事件``doloadlist``抛出的事件参数结构如下：
 
 ```javascript
 /**
- * 从服务器载入列表
- * 
  * @event    module:util/cache/list._$$CacheList#doloadlist
  * @param    {Object}   event  - 可选配置参数
  * @property {String}   key    - 列表标识
@@ -121,31 +119,76 @@ NEJ.define([
  */
 ```
 
+响应方法``__doLoadList``中，根据传入的事件参数，向服务端发出请求。
 
+```javascript
+_pro.__doLoadList = function(_options){
+    var _url = '...';
+    // 使用自己封装的请求方法
+    // 或者util/ajax/xdr._$request等NEJ方法
+    this.__doSendRequest(_url, {
+        method: 'GET',
+        data: _options.data,
+        onload: function(_res){
+            // ...
+            _options.onload(_result);
+        },
+        onerror: function(_err){
+            // ...
+        }
+    });
+}
+```
 
-#### __doPullRefresh
+根据具体场景完善请求逻辑。在请求结束后，必须调用事件参数中的``onload``方法，以执行接下来的数据处理。列表缓存管理器在处理完数据后，即抛出``onlistload``事件，标识数据列表已载入完成。
+
+#### 列表项的增删改查
+
+与数据列表的载入同理，你需要在子类中实现各xx事件的回调方法。当请求完成时，调整事件回调，完成缓存数据处理后抛出对应的事件。
+
+```
+doloaditem      =>  __doLoadItem    =>  onitemload
+doadditem       =>  __doAddItem     =>  onitemadd
+dodeleteitem    =>  __doDeleteItem  =>  onitemdelete
+doupdateitem    =>  __doUpdateItem  =>  onitemupdate
+```
+
+#### 前向刷新列表
+
+@TODO
 
 该方法实现从服务器前向刷新列表。
 
-#### __doLoadItem
+#### 格式化数据项
 
-该方法实现从服务器载入列表项。
+格式化数据项方法``__doFormatItem``在列表缓存管理器中挺隐蔽的，但是非常实用。其用于实现格式化数据项，即所有从服务端载入的列表项，都会经过该方法格式化后存入缓存。
 
-#### __doAddItem
+```javascript
+/**
+ * 缓存列表项
+ * @method module:util/cache/list._$$CacheList#__doSaveItemToCache
+ */
+_pro.__doSaveItemToCache = function(_item,_lkey){
+    // ...
+    _item = this.__doFormatItem(_item,_lkey) || _item;
+    // ...
+};
 
-该方法实现添加列表项至服务器。
+/**
+ * 格式化数据项，子类实现具体业务逻辑
+ * 
+ * @protected
+ * @method module:util/cache/list._$$CacheList#__doFormatItem
+ * @param  {Object} arg0 - 列表项
+ * @param  {String} arg1 - 列表标识
+ * @return {Object}        格式化后的列表项
+ */
+_pro.__doFormatItem = _f;
+```
 
-#### __doDeleteItem
+基础列表缓存管理器对象中是一个空方法，我们使用时覆盖即可。
 
-该方法实现从服务器上删除列表项。
-
-#### __doUpdateItem
-
-该方法实现更新列表项至服务器。
-
-#### __doFormatItem
-
-该方法实现格式化数据项，即把后端传的数据，转换到前端需要的格式（完全另返回一个对象也是可以的）。基础列表缓存管理器对象中是一个空方法，我们使用时覆盖即可。
+以上，子类中要实现的方法基本上介绍完了。另外，你还可以根据项目全局需要，再抽象一层进行封装，如全局统一处理请求错误。
 
 ### 使用列表缓存管理器
 
