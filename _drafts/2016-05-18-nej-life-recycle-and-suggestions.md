@@ -24,3 +24,14 @@ NEJ的模块调度系统中，模块的声明周期有以下几个步骤：
 
 在\_\_init方法中初始化需要的数据变量；
 
+
+
+``__onShow``和``__onRefresh``的参数中：
+
+```javascript
+href   : "/m/repository/version/?repoId=201"
+referer: "/m/repository/?repoId=201"
+source : "/m/repository/version/"
+target : "/m/repository/version/"
+umi    : "/m/repository/version/"
+```
