@@ -15,7 +15,7 @@ NEJ列表缓存管理器对应用开发最显著的两点优势是：
 - 集中管理应用中的异步请求，相同的请求逻辑只需写一次，具体页面中就只需要关心业务逻辑；
 - 快速实现对数据的缓存，减少无谓的网络请求，提升页面性能和用户体验；
 
-本文将从源码出发，结合我在蜂巢开发中的使用体会，介绍NEJ列表缓存管理器的使用方法和实现原理。
+本文将从源码出发，结合我在网易蜂巢开发中的使用体会，介绍NEJ列表缓存管理器的使用方法和实现原理。
 
 ## 列表缓存管理器的继承关系
 
@@ -25,86 +25,113 @@ NEJ列表缓存管理器对应用开发最显著的两点优势是：
 - **列表缓存管理器**：``util/cache/list._$$CacheList``，继承``_$$CacheAbstract``。它提供了更具体的缓存结构、事件、数据列表管理（包括分页）、数据项管理（增删改查）、垃圾回收等实现；
 - **列表缓存管理基类**：``util/cache/abstract._$$CacheListAbstract``，继承``_$$CacheList``。它指定了几个关键事件的回调接口方法；对请求逻辑再封装，支持在项目中统一管理接口地址、请求错误处理等。
 
-本文介绍的列表缓存管理器主要是``_$$CacheList``的部分，其实现了列表缓存的大部分逻辑。缓存管理基类部分只关注基于内存的缓存结构和请求管理部分；列表缓存管理基类相对比较偏向上层的实现，具体的开发场景不一定适用，如在蜂巢开发中仅使用了其声明的事件回调方法、请求逻辑则根据蜂巢需求重新进行了封装，所以这部分不做详细介绍了。
+本文介绍的列表缓存管理器主要是``_$$CacheList``的部分，它实现了列表缓存的关键逻辑。缓存管理基类部分只关注基于内存的缓存结构和请求管理部分；列表缓存管理基类相对比较偏向上层的实现，具体的开发场景并不都适用，比如在蜂巢开发中仅沿用了其声明的事件回调方法、请求逻辑则根据蜂巢需求重新进行了封装，所以这部分将不做详细介绍。
 
 ## 最佳实践
 
 一般来说，列表缓存管理器的使用分为以下2步：
 
-1. 根据业务需求实现一个列表缓存管理器子类，如``_$$CacheUser``，继承自``_$$CacheList``。在子类中实现加载数据列表、列表项增删改查等事件回调方法，或添加自定义的业务方法；
+1. 根据业务需求实现一个列表缓存管理器子类，比如用户数据相关的``_$$CacheUser``，继承自``_$$CacheList``。在子类中实现加载数据列表、数据项增删改查等事件回调方法，或添加自定义的业务方法；
 2. 在相关业务脚本中引入子类文件，实例化列表缓存管理器、调用方法、响应事件进行业务处理。
 
 ### 实现列表缓存管理器子类
 
-列表缓存管理器在执行过程中，会抛出以下的事件：
+列表缓存管理器设计了一系列事件，用于推进逻辑执行。这些事件可以分为两种类型：
+
+- 数据加载型事件
+- 数据就绪型事件
+
+（原谅我实在想不到更好的命名方式了……）
+
+当列表缓存管理器被调用执行某操作，并且没有正确的缓存数据时，就会抛出「数据加载型事件」，告诉自己或其他模块：“我现在需要最新的数据，谁负责向服务端加载一下，加载完后调用给你的onload方法就行，我已经准备好接收了”。
+
+当负责加载数据的方法取得数据后，调用所给的onload方法，列表缓存管理器缓存成功后抛出「数据就绪型事件」，告诉其他模块：“缓存数据已经更新成功了，大家可以从缓存取数据了”；另外执行操作时，若已经有正确的缓存数据，也会直接抛出就绪事件。
+
+列表缓存管理器目前提供了以下事件：
 
 ```javascript
-doloadlist      // 
-doloaditem
-doadditem
-dodeleteitem
-doupdateitem
-dopullrefresh
+// 数据加载型事件
+doloadlist      // 向服务端请求数据列表
+dopullrefresh   // 向服务端前向刷新数据列表
+doloaditem      // 向服务端请求数据项
+doadditem       // 向服务端添加数据项
+dodeleteitem    // 向服务端删除数据项
+doupdateitem    // 向服务端更新数据项
 
-onlistload
-onitemload
-onitemadd
-onitemdelete
-onitemupdate
-onpullrefresh
+// 数据就绪型事件
+onlistload      // 数据列表 载入成功
+onpullrefresh   // 数据列表 前向载入成功
+onitemload      // 数据项 载入成功
+onitemadd       // 数据项 添加成功
+onitemdelete    // 数据项 删除成功
+onitemupdate    // 数据项 更新成功
 ```
 
-列表缓存管理器子类需要实现的就是，实现响应加载数据事件的回调方法。
+了解了列表缓存管理器的事件设计后，我们可以发现，数据加载型事件是一个关键的部分，如果没有方法去响应这类事件，列表缓存管理器的逻辑就是断开的、无法达到所需的功能。因此，列表缓存管理器子类中，所要做的就是（按需）指定和实现数据加载型事件响应方法。
 
-在子类中进行绑定。在接下来的介绍中，将使用列表缓存管理基类指定的回调方法：
-
-```javascript
-/*
- * util/cache/abstract._$$CacheListAbstract#__init
- */
-this._$batEvent({
-    doloadlist:    this.__doLoadList._$bind(this),
-    doloaditem:    this.__doLoadItem._$bind(this),
-    doadditem:     this.__doAddItem._$bind(this),
-    dodeleteitem:  this.__doDeleteItem._$bind(this),
-    doupdateitem:  this.__doUpdateItem._$bind(this),
-    dopullrefresh: this.__doPullRefresh._$bind(this)
-});
-```
-
-所以你的子类文件可以这么写：
+以常见的用户数据为例，用户数据缓存管理器子类``_$$CacheUser``大致是这样的：
 
 ```javascript
 NEJ.define([
-	'base/klass',
+    'base/klass',
     'util/cache/list'
 ], function(_k, _t, _p, _o, _f, _r){
-	var _pro;
-    
-    _p._$$Cache = _k._$klass();
-    _pro = _p._$$Cache._$extend(_t._$$CacheList);
-    
+    var _pro;
+
+    _p._$$CacheUser = _k._$klass();
+    // 继承列表缓存管理器基类
+    _pro = _p._$$CacheUser._$extend(_t._$$CacheList);
+
+    /**
+     * 控件重置方法中绑定事件
+     */
     _pro.__reset = function(_options){
-    	this.__super(_options);
+        this.__super(_options);
         this._$batEvent({
             doloadlist:    this.__doLoadList._$bind(this),
+            dopullrefresh: this.__doPullRefresh._$bind(this),
             doloaditem:    this.__doLoadItem._$bind(this),
             doadditem:     this.__doAddItem._$bind(this),
             dodeleteitem:  this.__doDeleteItem._$bind(this),
-            doupdateitem:  this.__doUpdateItem._$bind(this),
-            dopullrefresh: this.__doPullRefresh._$bind(this)
+            doupdateitem:  this.__doUpdateItem._$bind(this)
         });
+        // 这里用了和_$$CacheListAbstract同名的回调方法
+        // 你也可以直接继承_$$CacheListAbstract，就不用重写__reset方法了
     };
-    
+
+    _pro.__doLoadList = function(_options){
+        // TODO
+    };
+
+    _pro.__doPullRefresh = function(_options){
+        // TODO
+    };
+
+    _pro.__doLoadItem = function(_options){
+        // TODO
+    };
+
+    _pro.__doAddItem = function(_options){
+        // TODO
+    };
+
+    _pro.__doDeleteItem = function(_options){
+        // TODO
+    };
+
+    _pro.__doUpdateItem = function(_options){
+        // TODO
+    };
+
     return _p;
 });
 ```
 
-接下来，实现指定的响应方法。
+#### 载入数据列表
 
-#### 加载数据列表
+上述代码中，各数据加载方法都会传入一个Object类型的参数，这里将其称为「请求信息」参数。当调用执行某操作时，列表缓存管理器会根据各参数，组织出请求信息对象，然后跟随对应的数据请求型事件抛出。请求信息中包含了与服务端进行数据交互所需的参数，数据加载方法根据请求信息发起请求。
 
-当``doloadlist``事件抛出时，表示列表缓存管理器需要请求加载数据列表。子类中实现该事件的响应方法``__doLoadList``，执行时向服务端载入数据列表。随着事件``doloadlist``抛出的事件参数结构如下：
+以载入数据列表为例，它的请求信息中包含了以下字段：
 
 ```javascript
 /**
@@ -119,53 +146,54 @@ NEJ.define([
  */
 ```
 
-响应方法``__doLoadList``中，根据传入的事件参数，向服务端发出请求。
+所以，载入数据列表方法``__doLoadList``中大致是这样的：
 
 ```javascript
 _pro.__doLoadList = function(_options){
     var _url = '...';
-    // 使用自己封装的请求方法
-    // 或者util/ajax/xdr._$request等NEJ方法
+
+    // ...
+
+    // 使用自己封装的请求方法发起请求
+    // 或者util/ajax/xdr._$request等NEJ提供的方法
     this.__doSendRequest(_url, {
         method: 'GET',
         data: _options.data,
+        // ...
         onload: function(_res){
             // ...
             _options.onload(_result);
         },
         onerror: function(_err){
+            // 错误处理逻辑
             // ...
         }
     });
 }
 ```
 
-根据具体场景完善请求逻辑。在请求结束后，必须调用事件参数中的``onload``方法，以执行接下来的数据处理。列表缓存管理器在处理完数据后，即抛出``onlistload``事件，标识数据列表已载入完成。
+在数据加载成功后，记得调用请求信息中的``onload``回调方法，并把获取的数据传入。
 
-#### 列表项的增删改查
-
-与数据列表的载入同理，你需要在子类中实现各xx事件的回调方法。当请求完成时，调整事件回调，完成缓存数据处理后抛出对应的事件。
-
-```
-doloaditem      =>  __doLoadItem    =>  onitemload
-doadditem       =>  __doAddItem     =>  onitemadd
-dodeleteitem    =>  __doDeleteItem  =>  onitemdelete
-doupdateitem    =>  __doUpdateItem  =>  onitemupdate
-```
-
-#### 前向刷新列表
-
-@TODO
-
-该方法实现从服务器前向刷新列表。
+其他数据加载方法的逻辑，与```__doLoadList``基本类似。大家可以从``util/cache/list._$$CacheList``源码中查阅到各自的请求信息结构，实现请求逻辑。
 
 #### 格式化数据项
 
-格式化数据项方法``__doFormatItem``在列表缓存管理器中挺隐蔽的，但是非常实用。其用于实现格式化数据项，即所有从服务端载入的列表项，都会经过该方法格式化后存入缓存。
+在从服务端获取数据后，列表缓存管理器都会把所有数据项，经过一个方法格式化后再存入缓存。其中的格式化方法就是``__doFormatItem``，它是一个接口方法，需要在子类中实现具体的业务逻辑。如果子类中没有实现，数据项就按原格式存入缓存。
 
 ```javascript
 /**
- * 缓存列表项
+ * 格式化数据项，子类实现具体业务逻辑
+ *
+ * @protected
+ * @method module:util/cache/list._$$CacheList#__doFormatItem
+ * @param  {Object} arg0 - 数据项
+ * @param  {String} arg1 - 列表标识
+ * @return {Object}        格式化后的数据项
+ */
+_pro.__doFormatItem = _f;
+
+/**
+ * 缓存数据项
  * @method module:util/cache/list._$$CacheList#__doSaveItemToCache
  */
 _pro.__doSaveItemToCache = function(_item,_lkey){
@@ -173,60 +201,145 @@ _pro.__doSaveItemToCache = function(_item,_lkey){
     _item = this.__doFormatItem(_item,_lkey) || _item;
     // ...
 };
-
-/**
- * 格式化数据项，子类实现具体业务逻辑
- * 
- * @protected
- * @method module:util/cache/list._$$CacheList#__doFormatItem
- * @param  {Object} arg0 - 列表项
- * @param  {String} arg1 - 列表标识
- * @return {Object}        格式化后的列表项
- */
-_pro.__doFormatItem = _f;
 ```
 
-基础列表缓存管理器对象中是一个空方法，我们使用时覆盖即可。
+``__doFormatItem``方法其实非常实用，不过略显隐蔽，没有看到有文档提到过它。使用这个方法，就可以集中进行格式化、避免零散的格式化逻辑；可以统一数据字段结构、避免数据不同状态下字段差异带来的逻辑隐患；可以过滤掉无用的字段，减小缓存占用等。建议在所有的列表缓存管理器子类中都实现该方法。
 
-以上，子类中要实现的方法基本上介绍完了。另外，你还可以根据项目全局需要，再抽象一层进行封装，如全局统一处理请求错误。
+```javascript
+_pro.__doFormatItem = function(_item, _lkey){
+    // Do It.
+};
+```
+
+#### 自定义方法
+
+除了NEJ提供的这些操作外，我们还可以在子类中实现自定义方法，以进行其他特殊的数据交互。这里要提的一点建议是，尽量用事件的方式来推进逻辑的执行。
+
+```javascript
+// Bad
+_pro._$doSomething = function(_options, _callback){
+    // ...
+};
+
+// Good
+_pro._$doSomething = function(_options){
+    // ...
+    this._$dispatchEvent('onsomethingsuccess', _obj);
+};
+```
+
+以上，一个列表缓存管理器子类就基本上实现了。另外，你还可以根据项目全局需要，再抽象一层进行封装，如全局统一处理请求错误等。
 
 ### 使用列表缓存管理器
 
+上一节中说了这么多操作的事件和响应，那么要怎么去调用这些操作呢？
+
+列表缓存管理器对外提供了以下的公开操作方法，对应的事件也一并列出来：
+
+| 操作接口      | 数据加载事件    | 数据就绪事件    |
+| ---           | ---             | ---             |
+| _$getList     | doloadlist      | onlistload      |
+| _$pullRefresh | dopullrefresh   | onpullrefresh   |
+| _$getItem     | doloaditem      | onitemload      |
+| _$addItem     | doadditem       | onitemadd       |
+| _$deleteItem  | dodeleteitem    | onitemdelete    |
+| _$updateItem  | doupdateitem    | onitemupdate    |
+
+还是以用户数据为例，现在需要实现一个模块``_$$ModuleUserList``，展示用户列表。
+
 #### 实例化
 
-在实例化一个列表缓存管理器时，同样要传入参数对象。除事件绑定外，其它参数字段如下：
+页面模块中引入缓存模块后，首先要实例化一个列表缓存管理器实例出来，后续才可以进行调用。
+
+实例化参数的说明，可以在``util/cache/list``的110行左右找到。
 
 ```javascript
 /*
- * @param    {Object}   options - 可选配置参数
+ * @param    {Object}   options - 实例化可选配置参数
  * @property {String}   id      - 缓存标识
  * @property {String}   key     - 指定数据项主键，默认为'id'
- * @property {Boolean}  autogc  - 标识是否自动进行垃圾回收
+ * @property {Boolean}  autogc  - 标识是否自动进行数据清理
  * @property {Variable} data    - 供自定义的数据
  */
 ```
 
-以上参数中：
+实例化参数要再细说的是：
 
-- id是可选参数，不指定也不会有影响。后面所说的「缓存标识」就是指该参数，代码中用``cacheId``表示；
-- 当autogc设置为true时，在``_$clearListInCache``方法执行后会接着自动执行垃圾回收方法``__doGCAction``；
+- 缓存标识id，是一个比较重要的概念，但它也是可选参数，不指定也可正常使用。后文的原理解析中会多次提到，也会对其进行说明；
+- 参数key用于指定数据项的主键，管理器要根据主键区分数据项，可以参考数据库中主键的概念；
+- 参数autogc则用于决定数据回收的逻辑。``autogc = true``，则在``_$clearListInCache``方法被调用后会立即进行数据清理；``autogc=false``，则在管理器回收时才进行数据清理。比如，用户列表要提供刷新列表功能时，就需要设置``autogc = true``；
+- 除以上4个参数外，其他Function类型的参数都会被作为事件进行绑定。
 
-#### _$getList
+来看用户列表页的实例化代码，我们把实例化逻辑放在页面模块显示时(``__onShow``or``__onRefresh``)进行：
 
-调用``_$getList``方法。参数传入列表标识。后面所说的「列表标识」就是指该参数，代码中用``listKey``表示
+```javascript
+NEJ.define([
+    'base/klass',
+    'util/dispatcher/module',
+    'pro/path/to/cache/user'
+], function(_k, _dm, _cache, _p){
+    var _pro;
+
+    _p._$$ModuleUserList = _k._$klass();
+    _pro = _p._$$ModuleUserList._$extend(_dm, _$$ModuleAbstract);
+
+    // ...
+
+    _pro.__onShow = function(_options){
+        this.__super(_options);
+        // ...
+        this.__cacheUser = _cache._$$CacheUser._$allocate({
+            id: 'cache-user',   // 同一个管理器的实例，缓存标识尽量都一致
+            key: 'userId',
+            autogc: true,
+            data: {...},        // 不需要自定义的数据，就不需要指定
+
+            onlistload: this.__showUserList._$bind(this),
+            // 其他事件回调...
+        });
+    };
+
+    _pro.__showUserList = function(_event){
+        // TODO
+    }
+});
+```
+
+#### 加载数据列表
+
+用户数据缓存管理器实例化后，就可以调用``_$getList``方法开始加载用户列表了。
+
+在写代码前先看一下``_$getList``方法需要哪些参数：
 
 ```javascript
 /**
  * @method   module:util/cache/list._$$CacheList#_$getList
  * @param    {Object} arg0   - 可选配置参数
  * @property {String} key    - 列表标识
- * @property {Number} data   - 其他数据信息
+ * @property {Number} data   - 请求数据信息
  * @property {Number} offset - 偏移量
  * @property {Number} limit  - 数量
  * @property {Object} ext    - 回传数据
  * @return   {Void}
 */
 ```
+
+以上参数中：
+
+- 参数key是「列表标识」，同样后文会详细讲到。其他方法的代码中，列表标识常常以``lkey``出现；
+- 参数data需要传入请求的数据。一般请求列表不需要额外的参数，另外调用像``addItem``等方法时data中就是要提交的数据；
+- 参数offset、limit是分页相关参数，会在之后的「NEJ分页列表模块」文章中再详细介绍。
+
+所以，调用的代码如下：
+
+```javascript
+
+```
+
+
+#### 回收管理器实例
+
+
 
 ## 原理解析
 
@@ -429,7 +542,7 @@ _pro.__doGCAction = function(){
 
 因此，对于不再需要了的数据列表，请在列表缓存管理器回收之前及时使用``_$clearListInCache``方法，或者在实例化时指定``autogc: true``。另外，数据项(item)不需要关心，本身就只在``this.__lspl.hash``里，回收时直接就删除了。
 
-数据列表，没有显式调用``_$clearListInCache``的列表项不会被清楚。
+数据列表，没有显式调用``_$clearListInCache``的数据项不会被清楚。
 
 ## 小结和建议
 
@@ -441,6 +554,8 @@ _pro.__doGCAction = function(){
 在NEJ列表缓存管理器的应用中，最大的痛点是请求错误的处理不够灵活。这一点将在后续整理出一套比较适合的解决方案。
 
 「TODO」
+
+因为NEJ列表缓存管理器的细节非常之多，文章中无法一一说明，也难免出现错误。若大家有疑问或发现错误，非常欢迎一起交流。
 
 ## 其他记录
 
