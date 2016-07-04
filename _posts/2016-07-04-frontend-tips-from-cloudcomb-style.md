@@ -1,8 +1,11 @@
 ---
 layout: post
 category: code
-title: 从蜂巢开发中想到的几个前端开发建议——样式篇
+title: 从蜂巢开发中想到的几点前端开发建议——样式篇
 ---
+
+> 持续更新中
+> - 20160704 添加``inline-block``
 
 ## float vs inline-block
 
