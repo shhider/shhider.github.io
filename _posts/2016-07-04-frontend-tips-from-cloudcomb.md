@@ -1,11 +1,53 @@
 ---
 layout: post
 category: code
-title: 从蜂巢开发中想到的几点前端开发建议——样式篇
+title: 从蜂巢开发中想到的几点前端开发建议
 ---
 
 > 持续更新中
 > - 20160704 添加``inline-block``
+
+## NEJ的几种循环方法
+
+### _$loop
+
+### _$reverseEach
+
+### _$forEach
+
+### _$forIn
+
+## NEJ各生命周期各司其职
+
+模块的模版DOM事件，在``__init``方法中使用``_$addEvent``方法进行绑定；全局DOM事件(window/document/location等)应在``__onShow``或``__onRefresh``方法中进行绑定。
+
+## 事件绑定
+
+## JS中取DOM节点
+
+```javascript
+// Bad
+this.__tipTag = _e._$getByClassName(this.__body, 'u-invalid')[0];           // 1
+this.__base_desc = _e._$getByClassName(this.__body, 'u-invalid')[1];        // 2
+this.__detail_desc = _e._$getByClassName(this.__body, 'u-invalid')[2];      // 3
+this.__userName = _e._$getByClassName(this.__body, 'j-userNameText')[0];    // 4
+this.__openLevel = _e._$getByClassName(this.__body, 'openLevel');           // 5
+
+// Good
+this.__tips = _e._$getByClassName(this.__body, 'j-tip');
+this.__tipTag = this.__tips[0];
+this.__tipBaseDesc = this.__tips[1];
+this.__tipDetailDesc = this.__tips[2];
+```
+
+### 在class中添加js标识
+
+看到1、2、3行，很明显css与js发生了耦合。若下次调整样式，class名称需要改动，岂不是还要修改js？因此使用``j-xxx``的形式，用于js中取得该节点。
+
+### ``_$getByClassName``获取节点
+
+``_$getByClassName``方法怎么说也要消耗一些性能，即使IE9+的浏览器有原生支持。像1、2、3行中，“大费周折”取得了一串节点、取得其中一个，然后后面扔掉了已经取得的节点，又重新去取这些节点。
+
 
 ## float vs inline-block
 
