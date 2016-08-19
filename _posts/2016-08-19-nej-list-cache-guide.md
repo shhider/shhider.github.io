@@ -22,9 +22,9 @@ NEJ列表缓存管理器对应用开发最显著的两点优势是：
 
 查看NEJ目录``/src/util/cache/``目录下的文件，关于列表缓存、存在继承关系的的类有3个：
 
-- **缓存管理基类**：[util/cache/cache._$$CacheAbstract](https://github.com/genify/nej/blob/master/src/util/cache/cache.js)，继承NEJ控件基类。它提供了基于内存/本地存储的缓存管理、请求管理等实现；
-- **列表缓存管理器**：[util/cache/list._$$CacheList](https://github.com/genify/nej/blob/master/src/util/cache/list.js)，继承``_$$CacheAbstract``。它提供了更具体的缓存结构、事件、数据列表管理（包括分页）、数据项管理（增删改查）、垃圾回收等实现；
-- **列表缓存管理基类**：[util/cache/abstract._$$CacheListAbstract](https://github.com/genify/nej/blob/master/src/util/cache/abstract.js)，继承``_$$CacheList``。它指定了几个关键事件的回调接口方法；对请求逻辑再封装，支持在项目中统一管理接口地址、请求错误处理等。
+- **缓存管理基类**：[util/cache/cache._\$\$CacheAbstract](https://github.com/genify/nej/blob/master/src/util/cache/cache.js)，继承NEJ控件基类。它提供了基于内存/本地存储的缓存管理、请求管理等实现；
+- **列表缓存管理器**：[util/cache/list._\$\$CacheList](https://github.com/genify/nej/blob/master/src/util/cache/list.js)，继承``_$$CacheAbstract``。它提供了更具体的缓存结构、事件、数据列表管理（包括分页）、数据项管理（增删改查）、垃圾回收等实现；
+- **列表缓存管理基类**：[util/cache/abstract._\$\$CacheListAbstract](https://github.com/genify/nej/blob/master/src/util/cache/abstract.js)，继承``_$$CacheList``。它指定了几个关键事件的回调接口方法；对请求逻辑再封装，支持在项目中统一管理接口地址、请求错误处理等。
 
 本文介绍的列表缓存管理器主要是``_$$CacheList``的部分，它实现了列表缓存的关键逻辑。缓存管理基类部分只关注基于内存的缓存结构和请求管理部分；列表缓存管理基类相对比较偏向上层的实现，因具体场景而异，比如在蜂巢开发中仅沿用了其声明的事件回调方法、请求逻辑则根据蜂巢需求重新进行了封装，所以这部分将不做详细介绍。
 
@@ -258,7 +258,7 @@ _pro._$doSomething = function(_options){
 - 参数``autogc``则用于决定数据回收的逻辑。默认``autogc``为false时，``_$clearListInCache``方法只是从列表中去除数据项的引用，数据项依然在缓存结构中，下次获取数据列表时再将新得到的数据项合并；而将``autogc``设置为true，在``_$clearListInCache``方法执行后就会紧跟着完全清除缓存结构中孤立的数据项引用，下次获取数据列表或数据项时将是新的引用；
 - 除以上4个参数外，其他Function类型的属性都会被作为事件进行绑定。
 
-来看用户列表页的实例化代码，我们把实例化逻辑放在页面模块显示时(``__onShow``or``__onRefresh``)进行：
+来看用户列表页的实例化代码，我们把实例化逻辑放在页面模块显示时(``__onShow`` or ``__onRefresh``)进行：
 
 ```javascript
 NEJ.define([
