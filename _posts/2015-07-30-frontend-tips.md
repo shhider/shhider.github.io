@@ -4,35 +4,74 @@ title: FrontEnd Tips
 category: code
 ---
 
-getElement(s)ByXXX方法返回的都是HTMLCollection，有length等属性，但不是Array；
+### undefined
 
----
+判断一个值是否为``undefined``有时必须使用``typeof``，原因是如果一个变量根本没有被声明，只有使用``typeof``判断才不会报错，用相等运算符判断会抛出异常。
+
+```javascript
+// x没有被声明过
+if (typeof x === 'undefined') { // 不会报错
+    // ...
+}
+
+if(x === undefined){ // 抛出ReferenceError异常
+    // ...
+}
+```
+
+不过如果要检测的变量是个全局变量，可以通过检测全局对象的同名属性来代替：
+
+```javascript
+if (window.x === undefined) {
+    // ...
+}
+```
+
+** Reference **
+
+- [undefined - JavaScript | MDN](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/undefined)
+
+--------------
+
+### HTMLCollection
+
+``getElement(s)ByXXX``方法返回的都是``HTMLCollection``，有length等属性，但不是Array；
+
+----------
+
+### Console.time()
 
 Console对象有Time、TimeEnd等方法，用来测试运行时间蛮方便；
 
----
+-----------
 
-需要在监听Radio的选中状态时，一直没有理想的方法，后来发现RadioStateChange这么一个事件，经过查询，这并不是标准的W3C事件，而是Mozilla的XUL的事件。
+### RadioStateChange
 
----
+需要在监听Radio的选中状态时，一直没有理想的方法，后来发现``RadioStateChange``这么一个事件，经过查询，这并不是标准的W3C事件，而是Mozilla的XUL的事件。
+
+-------------
+
+### label
 
 在使用表单控件（input/select/textarea）的时候，常常会使用label来指定说明文字和控件之间的关联，以方便用户点击、输入、选择，并提升页面的语义化。今天为了监听radio控件的选中状态，考虑到点击的是label，因此把点击事件监听到了label上，结果发现在点击label时，事件会触发两次。经过在IE1(9-11)、Firefox、Chrome中试验发现，在label上点击后，浏览器会“帮忙”在对应的控件上执行一次点击。
 
----
+-----------
+
+### 72分辨率
 
 为什么进行Web页面设计时分辨率往往设置为72？因为1px = 1pt * 图像分辨率/72，方便计算。
 
----
+------------
 
-避免过深的层级的同时，不过分苛求浅层级，按照页面模块划分、何时即可。
-
----
+### clip: rect()
 
 clip: rect(0px,60px,200px,0px); 可以对元素进行裁剪，浏览器支持良好除了IE不支持“inherit”值。该属性只对absolute、fixed绝对定位元素生效。四个值分别是top/right/bottom/left，要注意的是值是相对左上角(0, 0)来取的。
 
----
+-------------
 
-text-align有一个属性——justify，表示两端对齐。在实现表单时，我希望label的文字能够两端对齐，但是添加text-align: justify属性却没有效果，表示很不解。查找资料后得知：text:align: justify属性是不会处理块内的最后一行文本，所以当块内只有一行文字时，不会有两端对齐的效果。在部分浏览器（(caniuse text-align-last)[http://caniuse.com/#search=text-align-last]）中，支持text-align-last属性，当指定text-align-last: justify时，块内最后一行文本也会进行两端对齐处理，不过这一属性支持度并不高。有一种hack方式就是：给单行文本后面再加一行（:after）。
+### text-align: justify
+
+``text-align``有一个属性——justify，表示两端对齐。在实现表单时，我希望label的文字能够两端对齐，但是添加``text-align: justify``属性却没有效果，表示很不解。查找资料后得知：``text:align: justify``属性是不会处理块内的最后一行文本，所以当块内只有一行文字时，不会有两端对齐的效果。在部分浏览器（(caniuse text-align-last)[http://caniuse.com/#search=text-align-last]）中，支持``text-align-last``属性，当指定``text-align-last: justify``时，块内最后一行文本也会进行两端对齐处理，不过这一属性支持度并不高。有一种hack方式就是：给单行文本后面再加一行（:after）。
 
 ```css
 div{
@@ -48,19 +87,21 @@ div:after{
 }
 ```
 
----
+--------------
 
-HtmlFormElement对象中的表单项是只读的！[http://www.w3.org/TR/DOM-Level-2-HTML/html.html#ID-40002357](http://www.w3.org/TR/DOM-Level-2-HTML/html.html#ID-40002357)
+### HtmlFormElement
 
----
+``HtmlFormElement``对象中的表单项是只读的！[http://www.w3.org/TR/DOM-Level-2-HTML/html.html#ID-40002357](http://www.w3.org/TR/DOM-Level-2-HTML/html.html#ID-40002357)
+
+--------------
 
 键盘事件，按下Enter键有以下几种情况：单独按下 | Ctrl+Enter | Shif+Enter。除IE8及以下未测试外，Firefox是：13 | 13 |13，其他（Chrome、IE9+）均为：13 | 10 | 13。
 
----
+-------------
 
 在项目中，有大量的Ajax操作，后来发现一些页面请求接口后，数据并不是最新的。原因是浏览器的缓存机制，特别是IE中，以及Firefox。解决方案是，在需要获取最新数据的URL中加上一个随机字符串，我使用的是时间戳+随机数。
 
----
+-------------
 
 ES5中String对象已经支持trim方法，即去除字符串首尾的空白字符。IE8及以下不支持，实现的代码可以看以下。NEJ中已经对String添加该方法。
 
@@ -76,7 +117,7 @@ function rtrim(str){ //删除右边的空格
 }
 ```
 
----
+-------------
 
 在很多情况下，我们经常通过多个网址提供相同的内容。通过多个网址访问的内容（或等同内容）定义一个规范网址，我们可以避免一些seo上的问题。
 
@@ -87,9 +128,11 @@ function rtrim(str){ //删除右边的空格
 - Google文档：[https://support.google.com/webmasters/answer/139066?hl=zh-Hans](https://support.google.com/webmasters/answer/139066?hl=zh-Hans)；
 - 也可以参考我网易考拉的做法：[www.kaola.com](www.kaola.com)，整体页面超级规范的。
 
----
+-----------
 
-Date对象可识别的ISO日期格式。ISO 8601是国际标准化组织制定的日期时间表示规范，全称是《数据存储和交换形式·信息交换·日期和时间的表示方法》。
+### ISO: Date
+
+Date对象可识别的ISO日期格式。``ISO 8601``是国际标准化组织制定的日期时间表示规范，全称是《数据存储和交换形式·信息交换·日期和时间的表示方法》。
 
 起因是需要获得当天0点时的Unix时间戳，用 ``now - now%(24*60*60*1000)``取得的是UTC时区的0点——东八区的8点……所以最后使用`2015-11-02T01:20:00.456+0800`这样的格式来获得正确的0点时间戳。
 
@@ -100,20 +143,22 @@ Reference:
 - [一起Polyfill系列：让Date识别ISO 8601日期时间格式](http://www.cnblogs.com/fsjohnhuang/p/3731251.html)
 - [ISO 8601 - 维基百科，自由的百科全书](https://zh.wikipedia.org/zh-cn/ISO_8601)
 
----
+-----------
 
-**input事件**，当可输入控件的内容发生变化时触发，包括键盘事件、粘贴、undo等。
+### Event: input
+
+``input``事件，当可输入控件的内容发生变化时触发，包括键盘事件、粘贴、undo等。
 
 - 属于HTML5特性，IE9及以上和其他现代浏览器支持良好；
 - select、checkbox、radio、file等控件慎用，各浏览器支持程度不一。
 
----
+-----------
 
 对勾√的HTML实体字符：&radic;
 
----
+-----------
 
-**innerHTML**
+### innerHTML
 
 From [MSDN](https://msdn.microsoft.com/en-us/library/ms533897\(v=vs.85\).aspx)：
 
@@ -124,19 +169,19 @@ From [MSDN](https://msdn.microsoft.com/en-us/library/ms533897\(v=vs.85\).aspx)�
 
 [2015-11-27]经过一系列的测试（测试浏览器：Chrome46、Firefox42、Edge、IE8-11），table、thead、tbody、tr、td都存在innerHTML属性，在IE8-9中，前四者只读，其他情况都是可读写。
 
-Reference:
+** Reference: **
 
 - [BX9046: 各浏览器对 HTML 对象的 innerHTML 属性的读写支持存在差异](http://w3help.org/zh-cn/causes/BX9046)
 - [HTML DOM innerHTML 属性](http://www.w3school.com.cn/jsref/prop_tablerow_innerhtml.asp)
 
 
----
+-----------
 
 HTML原生就带着一个`checkValidity`方法，以检验填写项是否正确，可用性待测试。
 
----
+-----------
 
-HTML的内容模型
+### HTML内容模型
 
 在HTML5前，元素的类型分为：Block Level Elements和Text Level Elements，中文通常称为块级元素和行内元素。
 
@@ -155,7 +200,7 @@ HTML的内容模型
 
 更详细的说明请前往：[W3C](http://www.w3.org/TR/2011/WD-html5-20110525/content-models.html#kinds-of-content)。同样，也可以阅读[WHATWG](https://developers.whatwg.org/content-models.html#content-models)
 
----
+-----------
 
 阅读文章：
 
@@ -195,19 +240,21 @@ if (true) {
 console.log(x);
 ```
 
----
+-----------
 
-call & apply
+### call & apply
 
 - 在 **ES5的严格模式** 中，两者的第一个参数都会变成this的值，哪怕传入的参数是原始值甚至是``null``或``undefined``；
 - 在ES3和非严格模式中，传入的``null``和``undefined``会被全局对象代替；
 - call方法接受多个参数；apply接受两个参数。牢记；
 
----
+-----------
 
 ![20151223思维导图](/public/img/20150730-1-01.png)
 
----
+-----------
+
+### HTTP-30x
 
 URL Hash在3xx跳转时何去何从~
 
@@ -231,38 +278,43 @@ Hash部分并不会包含在请求中。因此，后端程序也是无法取得�
 
 目前，也没有找到官方性质的文档，说明3xx跳转时是否应该保留hash。
 
-### Reference
+** Reference **
 
 - [Hash URIs | W3C Blog](https://www.w3.org/blog/2011/05/hash-uris/)
 - [URL Fragments and Redirects - IEInternals - Site Home - MSDN Blogs](http://blogs.msdn.com/b/ieinternals/archive/2011/05/17/url-fragments-and-redirects-anchor-hash-missing.aspx)
 - [Bug 24175 – URL Redirect Loses Fragment](https://bugs.webkit.org/show_bug.cgi?id=24175)
 
+-----------
 
----
-
-**Stacking without z-index**
+### z-index
 
 > - 在一组由不含有任何z-index属性的同类元素，如例子中的定位块元素（DIV #1 至 #4），这些元素按照它们在HTML结构中出现的顺序堆叠，而不管它们的定位属性如何。
 > - 普通流中不含有定位属性的标准块元素（DIV #5）始终先于定位元素渲染并出现在定位元素的下层，即便它们在HTML结构中出现的位置晚于定位元素也是如此。
 
 更多关于CSS的z-index属性，请看[理解CSS的 z-index属性 - Web 开发者指南 | MDN](https://developer.mozilla.org/zh-CN/docs/Web/Guide/CSS/Understanding_z_index)
 
-### Reference
+** Reference **
 
 - [Stacking without z-index - Web 开发者指南 | MDN](https://developer.mozilla.org/zh-CN/docs/Web/Guide/CSS/Understanding_z_index/Stacking_without_z-index)
 
 
----
+-----------
 
-``Element.style.*``取的是元素的style属性中设置的值，因此如果没有在该属性里设值，获取到的即为empty。
+### HTMLElement.style.*
 
----
+``HTMLElement.style.*``取的是元素的style属性中设置的值，因此如果没有在该属性里设值，获取到的即为empty。
 
-form、input等元素的onchange事件只有在用户操作时才会触发，通过js进行的赋值不会触发事件。
+------------
 
----
+### onchange
 
-input事件请注意。以目前测试来看，若输入框设置了maxlength属性：
+form、input等元素的``onchange``事件只有在用户操作时才会触发，通过js进行的赋值不会触发事件。
+
+------------
+
+### input.maxlength
+
+input事件请注意。以目前测试来看，若输入框设置了``maxlength``属性：
 
 - chrome在到达最大长度后，继续执行输入，虽然内容不会增加但input事件还是继续触发的；
 - FireFox、Edge/IE则在到达最大长度后，继续输入不会再触发input事件。
