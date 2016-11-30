@@ -27,4 +27,4 @@ title: CSS背景属性background-attchment的取值对比
 
 ## Refrence
 
-- [background-attachment - CSS | MDN](https://developer.mozilla.org/zh-CN/docs/Web/CSS/background-attachment)
+- [background-attachment - CSS \| MDN](https://developer.mozilla.org/zh-CN/docs/Web/CSS/background-attachment)
