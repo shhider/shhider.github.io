@@ -101,7 +101,6 @@ article a:visited,
 article a:link:hover,
 article a:visited:hover { color: #236fd4; margin: 0 2px;}
 article a:hover { color: #236fd4; margin: 0 2px; text-decoration: underline;}
-article img { border: 1px solid #bababa; box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.1); max-width: 40em;}
 article hr{height:2px; padding:0; margin:16px 0; background-color:#e7e7e7; border:0 none}
 article table { cell-spacing: 0; border: 1px solid #dadada; margin: 20px 0; width: 100%;word-break:normal;word-break:keep-all}
 article table tr{ background-color:#fff;border-top:1px solid #ccc}
@@ -118,7 +117,6 @@ article pre{word-wrap:normal}
 article pre code{display:inline;max-width:initial;padding:0;margin:0;overflow:initial;line-height:inherit;word-wrap:normal;background-color:transparent;border:0}
 article pre code:before,article pre code:after{content:normal}
 article kbd{display:inline-block;padding:3px 5px;font-size:11px;line-height:10px;color:#555;vertical-align:middle;background-color:#fcfcfc;border:solid 1px #ccc;border-bottom-color:#bbb;border-radius:3px;box-shadow:inset 0 -1px 0 #bbb}
-/* end of markdown */
 
 article{
 	blockquote{
@@ -131,4 +129,18 @@ article{
 			font-size: 14px; color: #666;
 		}
 	}
+    img {
+        display: block;
+        max-width: 80%;
+        margin: 0 auto;
+        box-shadow: 0 1px 10px rgba(0, 0, 0, .3);
+    }
+    img + em {
+        display: block;
+        margin: 0 auto;
+        margin-top: .5em;
+        width: 60%;
+        text-align: center;
+        font-size: 0.875em;
+    }
 }
