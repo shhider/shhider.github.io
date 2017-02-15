@@ -110,7 +110,7 @@ saveCityZipCode(city, zipCode);
 ### 避免记忆上的映射
 
 Explicit is better than implicit.
-详细一些总比粗略好。
+详细一些总比粗略的要好。
 
 Bad:
 
@@ -123,6 +123,7 @@ locations.forEach((l) => {
   // ...
   // ...
   // Wait, what is `l` for again?
+  // 等等，这个“l”是干嘛的来着？
   dispatch(l);
 });
 ```
@@ -176,7 +177,7 @@ function paintCar(car) {
 ```
 
 ### Use default arguments instead of short circuiting or conditionals
-### 用默认参数代替短路运算或条件语句
+### 用默认参数（ES6）代替短路运算或条件语句
 
 Bad:
 
@@ -198,20 +199,20 @@ function createMicrobrewery(breweryName = 'Hipster Brew Co.') {
 ## 函数
 
 ### Function arguments (2 or fewer ideally)
-### 参数数量（2个或2个以下的参数比较理想）
+### 参数数量控制在2个或2个以下
 
 
 Limiting the amount of function parameters is incredibly important because it makes testing your function easier. Having more than three leads to a combinatorial explosion where you have to test tons of different cases with each separate argument.
 
-限制函数的参数数量是件非常重要的事，因为这能让你在测试函数时更简单。超过3个参数之后，每个单独参数之间的组合展开，你不得不大量不同的用例。
+限制函数的参数数量是件非常重要的事，因为这能让你在测试函数时更简单。超过3个参数之后，参数之间的组合展开数量大大增加，你就不得不设计大量的用例。
 
 One or two arguments is the ideal case, and three should be avoided if possible. Anything more than that should be consolidated. Usually, if you have more than two arguments then your function is trying to do too much. In cases where it's not, most of the time a higher-level object will suffice as an argument.
 
-1个或2个参数是一个理想的情况，3个参数就应该尽量避免。再要多的参数就应该进行合并。通常，如果你有超过2个参数，就表示这个函数想要做过多的事情。碰到就是要那么多参数的情况时，大多数情况下用多级对象就可以了。
+理想情况是只有1-2个参数，3个参数的情况就应该尽可能避免了。再要多的参数就应该进行合并。而且通常情况下，如果你有超过2个参数，就表示这个函数想要做过多的事情。碰到就是要那么多参数的情况时，大多数情况下用多级对象作为一个参数就可以了。
 
 Since JavaScript allows you to make objects on the fly, without a lot of class boilerplate, you can use an object if you are finding yourself needing a lot of arguments.
 
-自从JavaScript允许你随手地创建对象，而不需要一长串的类模版，当你发现你需要大量参数时就可以使用一个对象。
+因为JavaScript允许你随手地创建对象，而不需要一长串的类模版，所以当你需要大量参数时就可以使用一个对象包含进来。
 
 To make it obvious what properties the function expects, you can use the es6 destructuring syntax. This has a few advantages:
 
@@ -219,15 +220,15 @@ To make it obvious what properties the function expects, you can use the es6 des
 
 - When someone looks at the function signature, it's immediately clear what
 properties are being used.
-- 当别人看到函数声明时，可以立即知道哪些属性将被用到；
+- 当别人看到函数声明时，就能立即知道哪些属性将被用到；
 - Destructuring also clones the specified primitive values of the argument
 object passed into the function. This can help prevent side effects. Note:
 objects and arrays that are destructured from the argument object are NOT
 cloned.
-- 解构语法也会克隆传递给函数的参数对象的原始值，这有利于避免一些副作用。注意：从参数对象解构出来的对象和数组并不是克隆的。
+- 当传递一个对象类型给函数时，解构语法会克隆参数对象的原始值，这可以避免一些副作用。注意：从参数对象解构出来的对象和数组并不是克隆的。
 - Linters can warn you about unused properties, which would be impossible
 without destructuring.
-- lint工具会提示那些未使用的属性，这只在使用了解构语法才能做到。
+- 如果没有使用结果语法，lint工具无法提示那些没有被使用的属性。
 
 Bad:
 
@@ -257,7 +258,7 @@ createMenu({
 
 This is by far the most important rule in software engineering. When functions do more than one thing, they are harder to compose, test, and reason about. When you can isolate a function to just one action, they can be refactored easily and your code will read much cleaner. If you take nothing else away from this guide other than this, you'll be ahead of many developers.
 
-这是目前为止，在软件开发领域最重要的一个原则。当一个函数要完成多个任务时，它的实现、测试和xx都会变得更困难。当你能把隔离每个函数到只做一件事，这些函数的重构就会更简单，而且你的代码读起来会更干净。
+这是目前为止，在软件开发领域最重要的一个原则。当一个函数要完成多个任务时，它的实现、测试和理解都会变得更困难。当你把一个函数进行隔离，使其只做一件事，函数的重构就会更简单，代码读起来也会更清晰。即使你从本指南里只学到了这一条，你也会领先于许多开发者。
 
 Bad:
 
@@ -288,6 +289,7 @@ function isClientActive(client) {
 ```
 
 ### Function names should say what they do
+### 函数名应体现其功能
 
 Bad:
 
@@ -315,9 +317,13 @@ addMonthToDate(1, date);
 
 
 ### Functions should only be one level of abstraction
+### 函数
+
 When you have more than one level of abstraction your function is usually
 doing too much. Splitting up functions leads to reusability and easier
 testing.
+
+函数内包含了多层抽象时，通常也说明这个函数做了过多的事。对其进行拆分会更利于重用和测试。
 
 Bad:
 
@@ -385,14 +391,20 @@ function parseBetterJSAlternative(code) {
 
 
 ### Remove duplicate code
+### 删除重复的代码
+
 Do your absolute best to avoid duplicate code. Duplicate code is bad because it
 means that there's more than one place to alter something if you need to change
 some logic.
+
+尽你最大的努力来避免重复的代码。重复的代码的坏处是当你要调整一些逻辑时，你必须在多处代码进行修改。
 
 Imagine if you run a restaurant and you keep track of your inventory: all your
 tomatoes, onions, garlic, spices, etc. If you have multiple lists that
 you keep this on, then all have to be updated when you serve a dish with
 tomatoes in them. If you only have one list, there's only one place to update!
+
+想象一下，如果你经营着一家餐馆，你需要记录你的库存：所有的番茄、洋葱、大蒜、香料等等。如果你记在了好几张列表上，当你用了几个番茄之后，所有的列表都必须进行更新。如果只有一张列表，你就只需要更新一次！
 
 Oftentimes you have duplicate code because you have two or more slightly
 different things, that share a lot in common, but their differences force you
@@ -400,11 +412,15 @@ to have two or more separate functions that do much of the same things. Removing
 duplicate code means creating an abstraction that can handle this set of
 different things with just one function/module/class.
 
+通常出现重复的代码是因为有几处细微的差异，xxx，但是它们之间的差异迫使你xxxx。删除这些重复的代码意味着需要创建一个抽象概念来处理这一些列的差异，用函数、模块或者类。
+
 Getting the abstraction right is critical, that's why you should follow the
 SOLID principles laid out in the *Classes* section. Bad abstractions can be
 worse than duplicate code, so be careful! Having said this, if you can make
 a good abstraction, do it! Don't repeat yourself, otherwise you'll find yourself
 updating multiple places anytime you want to change one thing.
+
+正确地进行抽象是至关重要的，这就是为什么你应该遵循Class部分中提出的xx原则。糟糕的抽象会比代码重复更可怕，所以一定要小心！说到这，如果你能进行不错的抽象，那么就去做吧！Don't repeat yourself，否则你会发现你每次改一个逻辑却要修改多段代码。
 
 Bad:
 
@@ -467,6 +483,7 @@ function showList(employees) {
 
 
 ### Set default objects with Object.assign
+### 用Object.assign设置对象属性的默认值。
 
 Bad:
 
@@ -516,7 +533,11 @@ createMenu(menuConfig);
 
 
 ### Don't use flags as function parameters
+### 不要把标记量作为参数
+
 Flags tell your user that this function does more than one thing. Functions should do one thing. Split out your functions if they are following different code paths based on a boolean.
+
+标记量告诉函数的用户，这个函数做了不止一件事，而函数应该只做一件事。所以若函数会根据一个布尔值来走不同的逻辑，那么就把这个函数拆分开来吧。
 
 Bad:
 
@@ -544,6 +565,8 @@ function createTempFile(name) {
 
 
 ### Avoid Side Effects (part 1)
+### 避免副总用（第一部分）
+
 A function produces a side effect if it does anything other than take a value in
 and return another value or values. A side effect could be writing to a file,
 modifying some global variable, or accidentally wiring all your money to a
