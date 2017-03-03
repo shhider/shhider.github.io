@@ -565,7 +565,7 @@ function createTempFile(name) {
 
 
 ### Avoid Side Effects (part 1)
-### 避免副总用（第一部分）
+### 避免副作用（第一部分）
 
 A function produces a side effect if it does anything other than take a value in
 and return another value or values. A side effect could be writing to a file,
