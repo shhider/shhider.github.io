@@ -24,15 +24,9 @@ body{ background:#fff;}
 a,a:hover{ text-decoration:none; color:#333;}
 /* 统一字体 */
 body,textarea,input,button,select,keygen,legend{
-  font:14px/1.5 "Microsoft Yahei", arial, \5b8b\4f53;
-  color:#333; outline:0;
+    font-family: "Helvetica Neue",Helvetica,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","微软雅黑",Arial,sans-serif;
+    font-size: $font-size-base;
+    line-height: 1.5;
+    color:#333;
+    outline:0;
 }
-
-/* === Function === */
-.f-cb:after,.f-cbli li:after{display:block; clear:both; visibility:hidden; height:0; overflow:hidden; content:".";}
-.f-cb,.f-cbli li{ zoom:1;}
-.f-ib{ display:inline-block; *display:inline; *zoom:1;}
-.f-dn{ display:none;}
-.f-db{ display:block;}
-.f-fl{ float:left;}
-.f-fr{ float:right;}

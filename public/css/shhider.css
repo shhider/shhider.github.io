@@ -1,3 +1,25 @@
+html,body,h1,h2,h3,h4,h5,h6,div,dl,dt,dd,p,blockquote,pre,hr,figure,table,caption,th,td,form,fieldset,legend,input,button,textarea,menu{margin:0;padding:0;}
+header,footer,section,article,aside,nav,hgroup,address,figure,figcaption,menu,details{display:block;}
+table{border-collapse:collapse;border-spacing:0;}
+html,body,fieldset,img,iframe,abbr{border:0;}
+i,cite,em,var,address,dfn{font-style:normal;}
+[hidefocus],summary{outline:0;}
+sup,sub{font-size:83%;}
+pre,code,kbd,samp{font-family:inherit;}
+q:before,q:after{content:none;}
+textarea{overflow:auto;resize:none;}
+label,summary{cursor:default;}
+a,button{cursor:pointer;}
+body{background:#fff;}
+a,a:hover{text-decoration:none;color:#333;}
+body,textarea,input,button,select,keygen,legend{font-family:"Helvetica Neue",Helvetica,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","微软雅黑",Arial,sans-serif;font-size:14px;line-height:1.5;color:#333;outline:0;}
+.f-cb:after,.f-cbli li:after{display:block;clear:both;visibility:hidden;height:0;overflow:hidden;content:".";}
+.f-cb,.f-cbli li{zoom:1;}
+.f-ib{display:inline-block;*display:inline;*zoom:1;}
+.f-dn{display:none;}
+.f-db{display:block;}
+.f-fl{float:left;}
+.f-fr{float:right;}
 html,body{background-color:#fff;width:100%;height:100%;overflow-x:hidden;}
 .g-hd{position:fixed;top:0;left:0;bottom:0;width:200px;transition:width linear 0.5s;-webkit-transition:width linear 0.5s;}
 .g-bd{position:relative;margin-left:200px;transition:margin linear 0.5s;-webkit-transition:margin linear 0.5s;}

@@ -1,4 +1,13 @@
-html, body { background-color: #fff; width: 100%; height: 100%; overflow-x: hidden;}
+@import "./base/_var.mcss";
+@import "./base/_reset.mcss";
+@import "./base/_function.mcss";
+
+
+html, body {
+    background-color: #fff;
+    width: 100%; height: 100%;
+    overflow-x: hidden;
+}
 .g-hd{ position: fixed; top: 0; left: 0; bottom: 0; width: 200px; transition: width linear .5s; -webkit-transition: width linear .5s;}
 .g-bd{ position: relative; margin-left: 200px; transition: margin linear .5s; -webkit-transition: margin linear .5s;}
 .g-mn{}
