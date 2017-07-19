@@ -4,6 +4,19 @@ category: code
 title: Atom编辑器折腾记
 ---
 
+
+【置顶】
+Recommend Packages：
+- emmet-atom, 前端必备；
+- highlight-selected, 选中某词时，将当前文件中其它位置相同的词高亮；
+- minimap, 用过 Sublime 的都懂；
+- docblockr, 注释利器，快速编辑各种格式的注释；
+- activate-power-mode, 装逼必备；
+- atom-editorconfig, 识别``.editorconfig``文件，并加以应用；
+- atom-project-viewer, Atom 自身的 project 机制务必蛋疼，使用它方便地管理 Project；
+- auto-detect-indentation, 目前没有发现打开文件自动识别缩进的包，暂时用它每次手动切换缩进形式；
+- file-icon, 使 Tree View 的图标更好看、更直观；
+
 昨天晚上手贱，把sublime编辑器的一些插件删掉了、又改了些配置，结果今天各种高亮不对、各种缩进不对，弄了好久也没有恢复到之前的手感。一怒之下，干脆下载了Atom，看看能不能用Atom来替换Sublime。
 
 首先，Atom的下载包约90+MB，相对来讲不小，原因我想是Chromium包的关系。下载之后，点击运行，不能选择安装的位置，等待片刻之后，直接就已经启动了。
