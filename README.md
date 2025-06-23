@@ -7,6 +7,7 @@ Series: [Read-List](https://github.com/shhider/shhider.github.io/issues?q=is%3Ai
 
 ### Front-end
 
+* [\[Read-List\] 多维表格, Aritable 类的技术信息](https://github.com/shhider/shhider.github.io/issues/24)
 * [TypeScript Read-List](https://github.com/shhider/shhider.github.io/issues/13)
 * [React Read-List](https://github.com/shhider/shhider.github.io/issues/14)
 * [Monorepo——大型前端项目的代码管理方式](https://github.com/shhider/shhider.github.io/issues/7)
